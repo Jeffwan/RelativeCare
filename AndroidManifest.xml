@@ -22,6 +22,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="edu.pitt.relativecare.GeoFence"
+            android:label="GeoFence">
+        </activity>
+
+        <activity
+            android:name="edu.pitt.relativecare.FallDetect"
+            android:label="FallDetect">
+        </activity>
+
+        <activity
+            android:name="edu.pitt.relativecare.Ambient"
+            android:label="Ambient">
+        </activity>
+
+
+
     </application>
 
 </manifest>

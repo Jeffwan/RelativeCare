@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="edu.pitt.relativecare"
-    android:versionCode="1"
-    android:versionName="1.0" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="edu.pitt.relativecare">
 
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="17" />
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="17"/>
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <activity
-            android:name="edu.pitt.relativecare.MainActivity"
-            android:label="@string/app_name" >
+    <application android:allowBackup="true" android:icon="@drawable/ic_launcher" android:label="@string/app_name" android:theme="@style/AppTheme">
+        <activity android:label="@string/app_name" android:name="edu.pitt.relativecare.MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:label="GeoFence" android:name="edu.pitt.relativecare.GeoFence">
+        </activity>
+
+        <activity android:label="FallDetect" android:name="edu.pitt.relativecare.FallDetect">
+        </activity>
+
+        <activity android:label="Ambient" android:name="edu.pitt.relativecare.Ambient">
+        </activity>
+
+
+
     </application>
 
 </manifest>
