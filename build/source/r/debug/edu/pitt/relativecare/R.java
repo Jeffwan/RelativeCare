@@ -851,7 +851,9 @@ containing a value of this type.
         public static final int abc_textfield_searchview_holo_light=0x7f020054;
         public static final int abc_textfield_searchview_right_holo_dark=0x7f020055;
         public static final int abc_textfield_searchview_right_holo_light=0x7f020056;
-        public static final int ic_launcher=0x7f020057;
+        public static final int horizontal=0x7f020057;
+        public static final int ic_launcher=0x7f020058;
+        public static final int vertical=0x7f020059;
     }
     public static final class id {
         public static final int action_bar=0x7f07001c;
@@ -865,10 +867,10 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f070015;
         public static final int action_menu_presenter=0x7f070016;
         public static final int action_mode_close_button=0x7f070024;
-        public static final int action_settings=0x7f07003f;
+        public static final int action_settings=0x7f070042;
         public static final int activity_chooser_view_content=0x7f070025;
         public static final int always=0x7f07000f;
-        public static final int ambient=0x7f07003e;
+        public static final int ambient=0x7f070041;
         public static final int beginning=0x7f07000a;
         public static final int checkbox=0x7f07002d;
         public static final int collapseActionView=0x7f070011;
@@ -880,8 +882,8 @@ containing a value of this type.
         public static final int end=0x7f07000c;
         public static final int expand_activities_button=0x7f070026;
         public static final int expanded_menu=0x7f07002c;
-        public static final int falldetect=0x7f07003d;
-        public static final int geofence=0x7f07003c;
+        public static final int falldetect=0x7f070040;
+        public static final int geofence=0x7f07003f;
         public static final int home=0x7f070017;
         public static final int homeAsUp=0x7f070005;
         public static final int icon=0x7f07002a;
@@ -918,6 +920,9 @@ containing a value of this type.
         public static final int up=0x7f070021;
         public static final int useLogo=0x7f070003;
         public static final int withText=0x7f070010;
+        public static final int x_axis=0x7f07003c;
+        public static final int y_axis=0x7f07003d;
+        public static final int z_axis=0x7f07003e;
     }
     public static final class integer {
         public static final int abc_max_action_buttons=0x7f090000;
