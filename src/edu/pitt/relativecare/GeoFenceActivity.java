@@ -38,7 +38,7 @@ import java.util.Locale;
 /**
  * Created by jeffwan on 11/19/13.
  */
-public class GeoFence extends Activity implements GoogleMap.OnMapLongClickListener {
+public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = "GeoFence";
     private GoogleMap mMap;

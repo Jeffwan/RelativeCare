@@ -46,17 +46,17 @@
         </activity>
 
         <activity
-            android:name="edu.pitt.relativecare.GeoFence"
+            android:name="edu.pitt.relativecare.GeoFenceActivity"
             android:label="GeoFence">
         </activity>
 
         <activity
-            android:name="edu.pitt.relativecare.FallDetect"
+            android:name="edu.pitt.relativecare.FallDetectActivity"
             android:label="FallDetect">
         </activity>
 
         <activity
-            android:name="edu.pitt.relativecare.Ambient"
+            android:name="edu.pitt.relativecare.AmbientActivity"
             android:label="Ambient">
         </activity>
 

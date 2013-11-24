@@ -7,7 +7,7 @@ import android.util.Log;
 /**
  * Created by jeffwan on 11/19/13.
  */
-public class Ambient extends Activity {
+public class AmbientActivity extends Activity {
 
     private static final String TAG = "Ambient";
 

@@ -34,19 +34,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.geofence:
                 Log.i(TAG,"geofence");
-                Intent geofenceIntent = new Intent(this, GeoFence.class);
+                Intent geofenceIntent = new Intent(this, GeoFenceActivity.class);
                 startActivity(geofenceIntent);
                 break;
 
             case R.id.falldetect:
                 Log.i(TAG,"falldetect");
-                Intent fallDetentIntent = new Intent(this, FallDetect.class);
+                Intent fallDetentIntent = new Intent(this, FallDetectActivity.class);
                 startActivity(fallDetentIntent);
                 break;
 
             case R.id.ambient:
                 Log.i(TAG,"ambient");
-                Intent ambientIntent = new Intent(this, Ambient.class);
+                Intent ambientIntent = new Intent(this, AmbientActivity.class);
                 startActivity(ambientIntent);
                 break;
 

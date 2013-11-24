@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Created by jeffwan on 11/19/13.
  */
-public class FallDetect extends Activity implements SensorEventListener {
+public class FallDetectActivity extends Activity implements SensorEventListener {
 
     private static final String TAG = "FallDetect";
     private SensorManager mSensorManager;
