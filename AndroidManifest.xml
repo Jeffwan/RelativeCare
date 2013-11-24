@@ -48,6 +48,17 @@
         <activity
             android:name="edu.pitt.relativecare.GeoFenceActivity"
             android:label="GeoFence">
+            <intent-filter>
+                <!--
+                    This activity is triggered when the system
+                    tries to start the app's main activity
+                -->
+                <action android:name="android.intent.action.MAIN" />
+                <!--
+                    This activity should be linked to the app's Launcher icon
+                 -->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -65,7 +76,10 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-
+		<service 
+		    android:name="edu.pitt.relativecare.ReceiveTransitionsIntentService" 
+		    android:exported="false"> 
+		</service>
     </application>
 
 </manifest>
