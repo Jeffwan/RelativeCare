@@ -33,47 +33,39 @@ public final class GeofenceUtils {
     public static final String APPTAG = "Geofence Detection";
 
     // Intent actions
-    public static final String ACTION_CONNECTION_ERROR =
-            "edu.pitt.relativecare.ACTION_CONNECTION_ERROR";
+    public static final String ACTION_CONNECTION_ERROR = "edu.pitt.relativecare.ACTION_CONNECTION_ERROR";
 
-    public static final String ACTION_CONNECTION_SUCCESS =
-            "edu.pitt.relativecare.ACTION_CONNECTION_SUCCESS";
+    public static final String ACTION_CONNECTION_SUCCESS = "edu.pitt.relativecare.ACTION_CONNECTION_SUCCESS";
 
-    public static final String ACTION_GEOFENCES_ADDED =
-            "edu.pitt.relativecare.ACTION_GEOFENCES_ADDED";
+    public static final String ACTION_GEOFENCES_ADDED = "edu.pitt.relativecare.ACTION_GEOFENCES_ADDED";
 
-    public static final String ACTION_GEOFENCES_REMOVED =
-            "edu.pitt.relativecare.ACTION_GEOFENCES_DELETED";
+    public static final String ACTION_GEOFENCES_REMOVED = "edu.pitt.relativecare.ACTION_GEOFENCES_DELETED";
 
-    public static final String ACTION_GEOFENCE_ERROR =
-            "edu.pitt.relativecare.ACTION_GEOFENCES_ERROR";
+    public static final String ACTION_GEOFENCE_ERROR = "edu.pitt.relativecare.ACTION_GEOFENCES_ERROR";
 
-    public static final String ACTION_GEOFENCE_TRANSITION =
-            "edu.pitt.relativecare.ACTION_GEOFENCE_TRANSITION";
+    public static final String ACTION_GEOFENCE_TRANSITION = "edu.pitt.relativecare.ACTION_GEOFENCE_TRANSITION";
 
-    public static final String ACTION_GEOFENCE_TRANSITION_ERROR =
-                    "edu.pitt.relativecare.ACTION_GEOFENCE_TRANSITION_ERROR";
+    public static final String ACTION_GEOFENCE_TRANSITION_ERROR = "edu.pitt.relativecare.ACTION_GEOFENCE_TRANSITION_ERROR";
 
     // The Intent category used by all Location Services sample apps
-    public static final String CATEGORY_LOCATION_SERVICES =
-                    "edu.pitt.relativecare.CATEGORY_LOCATION_SERVICES";
+    public static final String CATEGORY_LOCATION_SERVICES = "edu.pitt.relativecare.CATEGORY_LOCATION_SERVICES";
 
     // Keys for extended data in Intents
-    public static final String EXTRA_CONNECTION_CODE =
-                    "com.example.android.EXTRA_CONNECTION_CODE";
+    public static final String EXTRA_CONNECTION_CODE = "com.example.android.EXTRA_CONNECTION_CODE";
 
-    public static final String EXTRA_CONNECTION_ERROR_CODE =
-            "edu.pitt.relativecare.EXTRA_CONNECTION_ERROR_CODE";
+    public static final String EXTRA_CONNECTION_ERROR_CODE = "edu.pitt.relativecare.EXTRA_CONNECTION_ERROR_CODE";
 
-    public static final String EXTRA_CONNECTION_ERROR_MESSAGE =
-            "edu.pitt.relativecare.EXTRA_CONNECTION_ERROR_MESSAGE";
+    public static final String EXTRA_CONNECTION_ERROR_MESSAGE = "edu.pitt.relativecare.EXTRA_CONNECTION_ERROR_MESSAGE";
 
-    public static final String EXTRA_GEOFENCE_STATUS =
-            "edu.pitt.relativecare.EXTRA_GEOFENCE_STATUS";
+    public static final String EXTRA_GEOFENCE_STATUS = "edu.pitt.relativecare.EXTRA_GEOFENCE_STATUS";
 
     /*
      * Keys for flattened geofences stored in SharedPreferences
      */
+    public static final String KEY_NAME = "edu.pitt.relativecare.KEY_NAME";
+    
+    public static final String KEY_ADDRESS = "edu.pitt.relativecare.KEY_ADDRESS";
+    
     public static final String KEY_LATITUDE = "edu.pitt.relativecare.KEY_LATITUDE";
 
     public static final String KEY_LONGITUDE = "edu.pitt.relativecare.KEY_LONGITUDE";
@@ -96,6 +88,8 @@ public final class GeofenceUtils {
     public static final float INVALID_FLOAT_VALUE = -999.0f;
 
     public static final int INVALID_INT_VALUE = -999;
+    
+    public static final String INVALID_STRING_VALUE = "";
 
     /*
      * Constants used in verifying the correctness of input values

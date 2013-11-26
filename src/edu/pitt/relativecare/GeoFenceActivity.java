@@ -97,6 +97,8 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
      */
     private SimpleGeofence mUIGeofence1;
     
+    private SimpleGeofence geofenceMap;
+    
     // decimal formats for latitude, longitude, and radius
     private DecimalFormat mLatLngFormat;
     private DecimalFormat mRadiusFormat;
@@ -153,6 +155,9 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
         mGeofenceRemover = new GeofenceRemover(this);
 
         
+        geofenceMap = mPrefs.getGeofence("1");
+        
+        
         setContentView(R.layout.activity_geofence);
        
         // 判断连接状态
@@ -167,6 +172,29 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
             mMap.setMyLocationEnabled(true);
             mMap.setIndoorEnabled(true);
             mMap.setOnMapLongClickListener(this);
+            
+            if (geofenceMap!=null) {
+                LatLng point = new LatLng(geofenceMap.getLatitude(), geofenceMap.getLongitude());
+                // 1. Add a marker to map with info window
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(point)
+                        .title(geofenceMap.getName())
+                        .snippet("Ridus: "+geofenceMap.getRadius())
+                        .draggable(false)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                Marker marker = mMap.addMarker(markerOptions);
+                marker.showInfoWindow();
+
+                // 2. Instantiates a new CircleOptions object and defines the center and radius
+                CircleOptions circleOptions = new CircleOptions()
+                        .strokeColor(Color.RED)
+                        .strokeWidth(0)
+                        .fillColor(0x40ff0000)
+                        .center(point)
+                        .radius(geofenceMap.getRadius()); // In meters -- here customize according to the user configuration
+                Circle circle = mMap.addCircle(circleOptions);
+            }
+
         }
     }
     
@@ -358,120 +386,29 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 
     }
 
-    /**
-     * Called when the user clicks the "Remove geofence 1" button
-     * @param view The view that triggered this callback
-     */
-    public void onUnregisterGeofence1Clicked(View view) {
-        /*
-         * Remove the geofence by creating a List of geofences to
-         * remove and sending it to Location Services. The List
-         * contains the id of geofence 1 ("1").
-         * The removal happens asynchronously; Location Services calls
-         * onRemoveGeofencesByPendingIntentResult() (implemented in
-         * the current Activity) when the removal is done.
-         */
-
-        // Create a List of 1 Geofence with the ID "1" and store it in the global list
-        mGeofenceIdsToRemove = Collections.singletonList("1");
-
-        /*
-         * Record the removal as remove by list. If a connection error occurs,
-         * the app can automatically restart the removal if Google Play services
-         * can fix the error
-         */
-        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
-
-        /*
-         * Check for Google Play services. Do this after
-         * setting the request type. If connecting to Google Play services
-         * fails, onActivityResult is eventually called, and it needs to
-         * know what type of request was in progress.
-         */
-        if (!servicesConnected()) {
-
-            return;
-        }
-
-        // Try to remove the geofence
-        try {
-            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
-
-        // Catch errors with the provided geofence IDs
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (UnsupportedOperationException e) {
-            // Notify user that previous request hasn't finished.
-            Toast.makeText(this, R.string.remove_geofences_already_requested_error,
-                        Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Called when the user clicks the "Remove geofence 2" button
-     * @param view The view that triggered this callback
-     */
-    public void onUnregisterGeofence2Clicked(View view) {
-        /*
-         * Remove the geofence by creating a List of geofences to
-         * remove and sending it to Location Services. The List
-         * contains the id of geofence 2, which is "2".
-         * The removal happens asynchronously; Location Services calls
-         * onRemoveGeofencesByPendingIntentResult() (implemented in
-         * the current Activity) when the removal is done.
-         */
-
-        /*
-         * Record the removal as remove by list. If a connection error occurs,
-         * the app can automatically restart the removal if Google Play services
-         * can fix the error
-         */
-        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
-
-        // Create a List of 1 Geofence with the ID "2" and store it in the global list
-        mGeofenceIdsToRemove = Collections.singletonList("2");
-
-        /*
-         * Check for Google Play services. Do this after
-         * setting the request type. If connecting to Google Play services
-         * fails, onActivityResult is eventually called, and it needs to
-         * know what type of request was in progress.
-         */
-        if (!servicesConnected()) {
-
-            return;
-        }
-
-        // Try to remove the geofence
-        try {
-            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
-
-        // Catch errors with the provided geofence IDs
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (UnsupportedOperationException e) {
-            // Notify user that previous request hasn't finished.
-            Toast.makeText(this, R.string.remove_geofences_already_requested_error,
-                        Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Called when the user clicks the "Register geofences" button.
-     * Get the geofence parameters for each geofence and add them to
-     * a List. Create the PendingIntent containing an Intent that
-     * Location Services sends to this app's broadcast receiver when
-     * Location Services detects a geofence transition. Send the List
-     * and the PendingIntent to Location Services.
-     */
-//    public void onRegisterClicked(View view) {
+//    /**
+//     * Called when the user clicks the "Remove geofence 1" button
+//     * @param view The view that triggered this callback
+//     */
+//    public void onUnregisterGeofence1Clicked(View view) {
+//        /*
+//         * Remove the geofence by creating a List of geofences to
+//         * remove and sending it to Location Services. The List
+//         * contains the id of geofence 1 ("1").
+//         * The removal happens asynchronously; Location Services calls
+//         * onRemoveGeofencesByPendingIntentResult() (implemented in
+//         * the current Activity) when the removal is done.
+//         */
+//
+//        // Create a List of 1 Geofence with the ID "1" and store it in the global list
+//        mGeofenceIdsToRemove = Collections.singletonList("1");
 //
 //        /*
-//         * Record the request as an ADD. If a connection error occurs,
-//         * the app can automatically restart the add request if Google Play services
+//         * Record the removal as remove by list. If a connection error occurs,
+//         * the app can automatically restart the removal if Google Play services
 //         * can fix the error
 //         */
-//        mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
+//        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
 //
 //        /*
 //         * Check for Google Play services. Do this after
@@ -484,255 +421,80 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 //            return;
 //        }
 //
-//        /*
-//         * Check that the input fields have values and that the values are with the
-//         * permitted range
-//         */
-//        if (!checkInputFields()) {
-//            return;
-//        }
-//
-//        /*
-//         * Create a version of geofence 1 that is "flattened" into individual fields. This
-//         * allows it to be stored in SharedPreferences.
-//         */
-//        mUIGeofence1 = new SimpleGeofence(
-//            "1",
-//            // Get latitude, longitude, and radius from the UI
-//            Double.valueOf(mLatitude1.getText().toString()),
-//            Double.valueOf(mLongitude1.getText().toString()),
-//            Float.valueOf(mRadius1.getText().toString()),
-//            // Set the expiration time
-//            GEOFENCE_EXPIRATION_IN_MILLISECONDS,
-//            // Only detect entry transitions
-//            Geofence.GEOFENCE_TRANSITION_ENTER);
-//
-//        // Store this flat version in SharedPreferences
-//        mPrefs.setGeofence("1", mUIGeofence1);
-//
-//        /*
-//         * Create a version of geofence 2 that is "flattened" into individual fields. This
-//         * allows it to be stored in SharedPreferences.
-//         */
-//        mUIGeofence2 = new SimpleGeofence(
-//            "2",
-//            // Get latitude, longitude, and radius from the UI
-//            Double.valueOf(mLatitude2.getText().toString()),
-//            Double.valueOf(mLongitude2.getText().toString()),
-//            Float.valueOf(mRadius2.getText().toString()),
-//            // Set the expiration time
-//            GEOFENCE_EXPIRATION_IN_MILLISECONDS,
-//            // Detect both entry and exit transitions
-//            Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
-//            );
-//
-//        // Store this flat version in SharedPreferences
-//        mPrefs.setGeofence("2", mUIGeofence2);
-//
-//        /*
-//         * Add Geofence objects to a List. toGeofence()
-//         * creates a Location Services Geofence object from a
-//         * flat object
-//         */
-//        mCurrentGeofences.add(mUIGeofence1.toGeofence());
-//        mCurrentGeofences.add(mUIGeofence2.toGeofence());
-//
-//        // Start the request. Fail if there's already a request in progress
+//        // Try to remove the geofence
 //        try {
-//            // Try to add geofences
-//            mGeofenceRequester.addGeofences(mCurrentGeofences);
+//            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
+//
+//        // Catch errors with the provided geofence IDs
+//        } catch (IllegalArgumentException e) {
+//            e.printStackTrace();
 //        } catch (UnsupportedOperationException e) {
 //            // Notify user that previous request hasn't finished.
-//            Toast.makeText(this, R.string.add_geofences_already_requested_error,
+//            Toast.makeText(this, R.string.remove_geofences_already_requested_error,
 //                        Toast.LENGTH_LONG).show();
 //        }
 //    }
-//    /**
-//     * Check all the input values and flag those that are incorrect
-//     * @return true if all the widget values are correct; otherwise false
-//     */
-//    private boolean checkInputFields() {
-//        // Start with the input validity flag set to true
-//        boolean inputOK = true;
-//
-//        /*
-//         * Latitude, longitude, and radius values can't be empty. If they are, highlight the input
-//         * field in red and put a Toast message in the UI. Otherwise set the input field highlight
-//         * to black, ensuring that a field that was formerly wrong is reset.
-//         */
-//
-//        //这是变颜色的处理
-//        if (TextUtils.isEmpty(mLatitude1.getText())) {
-//            mLatitude1.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mLatitude1.setBackgroundColor(Color.BLACK);
-//        }
-//
-//        if (TextUtils.isEmpty(mLongitude1.getText())) {
-//            mLongitude1.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mLongitude1.setBackgroundColor(Color.BLACK);
-//        }
-//        if (TextUtils.isEmpty(mRadius1.getText())) {
-//            mRadius1.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mRadius1.setBackgroundColor(Color.BLACK);
-//        }
-//
-//        if (TextUtils.isEmpty(mLatitude2.getText())) {
-//            mLatitude2.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mLatitude2.setBackgroundColor(Color.BLACK);
-//        }
-//        if (TextUtils.isEmpty(mLongitude2.getText())) {
-//            mLongitude2.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mLongitude2.setBackgroundColor(Color.BLACK);
-//        }
-//        if (TextUtils.isEmpty(mRadius2.getText())) {
-//            mRadius2.setBackgroundColor(Color.RED);
-//            Toast.makeText(this, R.string.geofence_input_error_missing, Toast.LENGTH_LONG).show();
-//
-//            // Set the validity to "invalid" (false)
-//            inputOK = false;
-//        } else {
-//
-//            mRadius2.setBackgroundColor(Color.BLACK);
-//        }
-//
-//        /*
-//         * If all the input fields have been entered, test to ensure that their values are within
-//         * the acceptable range. The tests can't be performed until it's confirmed that there are
-//         * actual values in the fields.
-//         */
-//        if (inputOK) {
-//
-//            /*
-//             * Get values from the latitude, longitude, and radius fields.
-//             */
-//            double lat1 = Double.valueOf(mLatitude1.getText().toString());
-//            double lng1 = Double.valueOf(mLongitude1.getText().toString());
-//            double lat2 = Double.valueOf(mLatitude1.getText().toString());
-//            double lng2 = Double.valueOf(mLongitude1.getText().toString());
-//            float rd1 = Float.valueOf(mRadius1.getText().toString());
-//            float rd2 = Float.valueOf(mRadius2.getText().toString());
-//
-//            /*
-//             * Test latitude and longitude for minimum and maximum values. Highlight incorrect
-//             * values and set a Toast in the UI.
-//             */
-//
-//            if (lat1 > GeofenceUtils.MAX_LATITUDE || lat1 < GeofenceUtils.MIN_LATITUDE) {
-//                mLatitude1.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_latitude_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mLatitude1.setBackgroundColor(Color.BLACK);
-//            }
-//
-//            if ((lng1 > GeofenceUtils.MAX_LONGITUDE) || (lng1 < GeofenceUtils.MIN_LONGITUDE)) {
-//                mLongitude1.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_longitude_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mLongitude1.setBackgroundColor(Color.BLACK);
-//            }
-//
-//            if (lat2 > GeofenceUtils.MAX_LATITUDE || lat2 < GeofenceUtils.MIN_LATITUDE) {
-//                mLatitude2.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_latitude_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mLatitude2.setBackgroundColor(Color.BLACK);
-//            }
-//
-//            if ((lng2 > GeofenceUtils.MAX_LONGITUDE) || (lng2 < GeofenceUtils.MIN_LONGITUDE)) {
-//                mLongitude2.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_longitude_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mLongitude2.setBackgroundColor(Color.BLACK);
-//            }
-//            if (rd1 < GeofenceUtils.MIN_RADIUS) {
-//                mRadius1.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_radius_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mRadius1.setBackgroundColor(Color.BLACK);
-//            }
-//            if (rd2 < GeofenceUtils.MIN_RADIUS) {
-//                mRadius2.setBackgroundColor(Color.RED);
-//                Toast.makeText(
-//                        this,
-//                        R.string.geofence_input_error_radius_invalid,
-//                        Toast.LENGTH_LONG).show();
-//
-//                // Set the validity to "invalid" (false)
-//                inputOK = false;
-//            } else {
-//
-//                mRadius2.setBackgroundColor(Color.BLACK);
-//            }
-//        }
-//
-//        // If everything passes, the validity flag will still be true, otherwise it will be false.
-//        return inputOK;
-//    }
+
+   
+
+    /**
+     * Called when the user clicks the "Register geofences" button.
+     * Get the geofence parameters for each geofence and add them to
+     * a List. Create the PendingIntent containing an Intent that
+     * Location Services sends to this app's broadcast receiver when
+     * Location Services detects a geofence transition. Send the List
+     * and the PendingIntent to Location Services.
+     * @param markerAddress 
+     * @param fenceName 
+     * @param radius 
+     */
+    public void onRegisterClicked(LatLng point, String name, String address, int radius) {
+
+        mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
+        
+        if (!servicesConnected()) {
+            return;
+        }
+
+
+        /*
+         * Create a version of geofence 1 that is "flattened" into individual fields. This
+         * allows it to be stored in SharedPreferences.
+         */
+        mUIGeofence1 = new SimpleGeofence(
+            "1",
+            // Get latitude, longitude, and radius from the UI
+            name,
+            address,
+            Double.valueOf(point.latitude),
+            Double.valueOf(point.longitude),
+            Float.valueOf(radius),
+            // Set the expiration time
+            GEOFENCE_EXPIRATION_IN_MILLISECONDS,
+            // Only detect entry transitions
+            Geofence.GEOFENCE_TRANSITION_ENTER);
+
+        // Store this flat version in SharedPreferences
+        mPrefs.setGeofence("1", mUIGeofence1);
+
+        /*
+         * Add Geofence objects to a List. toGeofence()
+         * creates a Location Services Geofence object from a
+         * flat object
+         */
+        mCurrentGeofences.add(mUIGeofence1.toGeofence());
+
+        // Start the request. Fail if there's already a request in progress
+        try {
+            // Try to add geofences
+            mGeofenceRequester.addGeofences(mCurrentGeofences);
+        } catch (UnsupportedOperationException e) {
+            // Notify user that previous request hasn't finished.
+            Toast.makeText(this, R.string.add_geofences_already_requested_error,
+                        Toast.LENGTH_LONG).show();
+        }
+    }
+  
 
 	@Override
     public void onMapLongClick(LatLng point) {
@@ -764,7 +526,7 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 
     // AlertDialog 争取复用, 创建时候出来，marker click listener的时候也要出来
     private AlertDialog dialog;
-    private void showConfigDialog(final LatLng point, String markerAddress) {
+    private void showConfigDialog(final LatLng point, final String markerAddress) {
         // TODO Auto-generated method stub
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("GeoFence Configuaration");
@@ -811,8 +573,10 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
                         .radius(fenceRadius); // In meters -- here customize according to the user configuration
                 Circle circle = mMap.addCircle(circleOptions);
                 dialog.dismiss();
-                
+                 
                 // 3. Save Geofence
+                onRegisterClicked(point,fenceName, markerAddress, fenceRadius);
+                
             }
         });
 

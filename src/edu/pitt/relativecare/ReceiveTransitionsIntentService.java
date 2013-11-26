@@ -49,10 +49,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
         // First check for errors
         if (LocationClient.hasError(intent)) {
 
-            // Get the error code
             int errorCode = LocationClient.getErrorCode(intent);
-
-            // Get the error message
             String errorMessage = LocationServiceErrorMessages.getErrorString(this, errorCode);
 
             // Log the error
@@ -67,13 +64,13 @@ public class ReceiveTransitionsIntentService extends IntentService {
             // Broadcast the error *locally* to other components in this app
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 
-        // If there's no error, get the transition type and create a notification
+        // If there's no error, ***get the transition type***  and ***create a notification***
         } else {
 
             // Get the type of transition (entry or exit)
             int transition = LocationClient.getGeofenceTransition(intent);
 
-            // Test that a valid transition was reported
+            // Test that a valid transition was reported 这代码有什么用？难道还有 除了enter 和exit 的transition的类型么
             if (
                     (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
                     ||
@@ -94,7 +91,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 // success 没问题的话，sendNotification 出去
                 sendNotification(transitionType, ids);
 
-                // Log the transition type and a message
+                // Log the transition type and a message, getString 方法不就是R.id.title 一个参数么？但是为啥？
                 Log.d(GeofenceUtils.APPTAG,
                         getString(
                                 R.string.geofence_transition_notification_title,
@@ -121,38 +118,27 @@ public class ReceiveTransitionsIntentService extends IntentService {
 		    private void sendNotification(String transitionType, String ids) {
 		
 		        // Create an explicit content Intent that starts the main Activity
-		        Intent notificationIntent =
-		                new Intent(getApplicationContext(),MainActivity.class);
+		        Intent notificationIntent = new Intent(getApplicationContext(),MainActivity.class);
 		
 		        // Construct a task stack
 		        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		
-		        // Adds the main Activity to the task stack as the parent
 		        stackBuilder.addParentStack(MainActivity.class);
-		
-		        // Push the content Intent onto the stack
 		        stackBuilder.addNextIntent(notificationIntent);
 		
-		        // Get a PendingIntent containing the entire back stack
-		        PendingIntent notificationPendingIntent =
-		                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-		
+		        // Get a PendingIntent containing the entire back stack，这个Noticfication是不是用于返回MainActivity.class的
+		        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		        // Get a notification builder that's compatible with platform versions >= 4
 		        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
         // Set the notification contents
         builder.setSmallIcon(R.drawable.ic_notification)
-               .setContentTitle(
-                       getString(R.string.geofence_transition_notification_title,
-                               transitionType, ids))
+               .setContentTitle( getString(R.string.geofence_transition_notification_title,
+                               				transitionType, ids))
                .setContentText(getString(R.string.geofence_transition_notification_text))
                .setContentIntent(notificationPendingIntent);
 
-        // Get an instance of the Notification manager
-        NotificationManager mNotificationManager =
-            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Issue the notification
+        // Get an instance of the Notification manager，Issue the notification
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, builder.build());
     }
 

@@ -41,11 +41,11 @@ public class GeofenceRequester
     // Storage for a reference to the calling client
     private final Activity mActivity;
 
-    // Stores the PendingIntent used to send geofence transitions back to the app
+    // Stores the PendingIntent used to send geofence transitions back to the app, 就是notification 的那个 intent
     private PendingIntent mGeofencePendingIntent;
 
     // Stores the current list of geofences
-    private ArrayList<Geofence> mCurrentGeofences;
+    private ArrayList<Geofence> fenceList;
 
     // Stores the current instantiation of the location client
     private LocationClient mLocationClient;
@@ -77,95 +77,57 @@ public class GeofenceRequester
         mInProgress = flag;
     }
 
-    /**
-     * Get the current in progress status.
-     *
-     * @return The current value of the in progress flag.
-     */
     public boolean getInProgressFlag() {
         return mInProgress;
     }
 
-    /**
-     * Returns the current PendingIntent to the caller.
-     *
-     * @return The PendingIntent used to create the current set of geofences
-     */
     public PendingIntent getRequestPendingIntent() {
         return createRequestPendingIntent();
     }
 
-    /**
-     * Start adding geofences. Save the geofences, then start adding them by requesting a
-     * connection
-     *
-     * @param geofences A List of one or more geofences to add
-     */
+    /** Start adding geofences. Save the geofences, then start adding them by requesting a connection */
     public void addGeofences(List<Geofence> geofences) throws UnsupportedOperationException {
-
-        /*
-         * Save the geofences so that they can be sent to Location Services once the
-         * connection is available.
-         */
-        mCurrentGeofences = (ArrayList<Geofence>) geofences;
+    	
+        // Save the geofences so that they can be sent to Location Services once the connection is available.
+        fenceList = (ArrayList<Geofence>) geofences;
 
         // If a request is not already in progress
         if (!mInProgress) {
-
             // Toggle the flag and continue
             mInProgress = true;
-
-            // Request a connection to Location Services
-            requestConnection();
-
+            
+            /**
+             * Request a connection to Location Services. This call returns immediately,
+             * but the request is not complete until onConnected() or onConnectionFailure() is called.
+             * connect 成功以后 会有callback 来真正add 
+             */
+            
+            getLocationClient().connect();
         // If a request is in progress
         } else {
-
-            // Throw an exception and stop the request
             throw new UnsupportedOperationException();
         }
     }
 
     /**
-     * Request a connection to Location Services. This call returns immediately,
-     * but the request is not complete until onConnected() or onConnectionFailure() is called.
-     */
-    private void requestConnection() {
-        getLocationClient().connect();
-    }
-
-    /**
-     * Get the current location client, or create a new one if necessary.
-     *
-     * @return A LocationClient object
+     * Get the current location client, or create a new one if necessary.@return A LocationClient object
      */
     private GooglePlayServicesClient getLocationClient() {
         if (mLocationClient == null) {
-
             mLocationClient = new LocationClient(mActivity, this, this);
         }
         return mLocationClient;
-
-    }
-    /**
-     * Once the connection is available, send a request to add the Geofences
-     */
-    private void continueAddGeofences() {
-
-        // Get a PendingIntent that Location Services issues when a geofence transition occurs
-        mGeofencePendingIntent = createRequestPendingIntent();
-
-        // Send a request to add the current geofences
-        mLocationClient.addGeofences(mCurrentGeofences, mGeofencePendingIntent, this);
     }
 
     /*
      * Handle the result of adding the geofences
+     * Add geofence 添加以后（不知道success or failure ），发送广播
      */
     @Override
     public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
 
         // Create a broadcast Intent that notifies other components of success or failure
+    	// 这里应该就是给ReceiverTransitionIntentService用的，那边可以直接拿Intent判断了
         Intent broadcastIntent = new Intent();
 
         // Temp storage for messages
@@ -175,23 +137,17 @@ public class GeofenceRequester
         if (LocationStatusCodes.SUCCESS == statusCode) {
 
             // Create a message containing all the geofence IDs added.
-            msg = mActivity.getString(R.string.add_geofences_result_success,
-                    Arrays.toString(geofenceRequestIds));
-
-            // In debug mode, log the result
+            msg = mActivity.getString(R.string.add_geofences_result_success, Arrays.toString(geofenceRequestIds));
             Log.d(GeofenceUtils.APPTAG, msg);
-
             // Create an Intent to broadcast to the app
-            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)
-                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
+            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)  	   // action -- added
+                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)  // catagory
+                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg); // intent带数据过去
+            
         // If adding the geofences failed
         } else {
 
-            /*
-             * Create a message containing the error code and the list
-             * of geofence IDs you tried to add
-             */
+             //Create a message containing the error code and the list of geofence IDs you tried to add 
             msg = mActivity.getString(
                     R.string.add_geofences_result_failure,
                     statusCode,
@@ -221,7 +177,6 @@ public class GeofenceRequester
 
         // A request is no longer in progress
         mInProgress = false;
-
         getLocationClient().disconnect();
     }
 
@@ -236,8 +191,15 @@ public class GeofenceRequester
 
         Log.d(GeofenceUtils.APPTAG, mActivity.getString(R.string.connected));
 
-        // Continue adding the geofences
-        continueAddGeofences();
+        /**
+         * Once the connection is available, send a request to add the Geofences
+         */
+        
+        // Get a PendingIntent that Location Services issues when a geofence transition occurs
+        mGeofencePendingIntent = createRequestPendingIntent();
+
+        // Send a request to add the current geofences, 这是API 方法，参数就是 List<GeoFences>, 真正的监听
+        mLocationClient.addGeofences(fenceList, mGeofencePendingIntent, this);
     }
 
     /*
@@ -268,7 +230,6 @@ public class GeofenceRequester
 
         // If the PendingIntent already exists
         if (null != mGeofencePendingIntent) {
-
             // Return the existing intent
             return mGeofencePendingIntent;
 
@@ -310,18 +271,13 @@ public class GeofenceRequester
          * error.
          */
         if (connectionResult.hasResolution()) {
-
             try {
                 // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(mActivity,
                     GeofenceUtils.CONNECTION_FAILURE_RESOLUTION_REQUEST);
-
-            /*
-             * Thrown if Google Play services canceled the original
-             * PendingIntent
-             */
+            
+            //Thrown if Google Play services canceled the original PendingIntent
             } catch (SendIntentException e) {
-                // Log the error
                 e.printStackTrace();
             }
 

@@ -23,7 +23,10 @@ import com.google.android.gms.location.Geofence;
  */
 public class SimpleGeofence {
     // Instance variables
+	// 这里需要注意，id 是String类型, Transition是 int类型
     private final String mId;
+    private final String mName;
+    private final String mAddress;
     private final double mLatitude;
     private final double mLongitude;
     private final float mRadius;
@@ -36,11 +39,15 @@ public class SimpleGeofence {
      * @param longitude Longitude of the Geofence's center. The value is not checked for validity.
      * @param radius Radius of the geofence circle. The value is not checked for validity
      * @param expiration Geofence expiration duration in milliseconds The value is not checked for
-     * validity.
+     * validity. default is 12 hour.
      * @param transition Type of Geofence transition. The value is not checked for validity.
      */
+    
+    // 构造函数
     public SimpleGeofence(
             String geofenceId,
+            String geofencename,
+            String geoAddress,
             double latitude,
             double longitude,
             float radius,
@@ -50,74 +57,55 @@ public class SimpleGeofence {
 
         // An identifier for the geofence
         this.mId = geofenceId;
-
+        
         // Center of the geofence
+        this.mName = geofencename;
+        this.mAddress = geoAddress;
         this.mLatitude = latitude;
         this.mLongitude = longitude;
-
-        // Radius of the geofence, in meters
-        this.mRadius = radius;
-
-        // Expiration time in milliseconds
-        this.mExpirationDuration = expiration;
-
-        // Transition type
+        this.mRadius = radius;  // in meters
+        this.mExpirationDuration = expiration; // in milliseconds
         this.mTransitionType = transition;
     }
     // Instance field getters
 
-    /**
-     * Get the geofence ID
-     * @return A SimpleGeofence ID
-     */
     public String getId() {
         return mId;
     }
 
-    /**
-     * Get the geofence latitude
-     * @return A latitude value
-     */
+    public String getName() {
+		return mName;
+	}
+    
+    public String getAddress() {
+    	return mAddress;
+    }
+    
     public double getLatitude() {
         return mLatitude;
     }
 
-    /**
-     * Get the geofence longitude
-     * @return A longitude value
-     */
     public double getLongitude() {
         return mLongitude;
     }
 
-    /**
-     * Get the geofence radius
-     * @return A radius value
-     */
     public float getRadius() {
         return mRadius;
     }
 
-    /**
-     * Get the geofence expiration duration
-     * @return Expiration duration in milliseconds
-     */
     public long getExpirationDuration() {
         return mExpirationDuration;
     }
 
-    /**
-     * Get the geofence transition type
-     * @return Transition type (see Geofence)
-     */
     public int getTransitionType() {
         return mTransitionType;
     }
 
     /**
-     * Creates a Location Services Geofence object from a
+     * Creates a Location Services Geofence object from a	
      * SimpleGeofence.
-     *
+     * 
+     * 这个主要不是为了创建，create 还是通过构造函数，这个主要是用于取出一个Object的, 我还是不懂这是干什么的
      * @return A Geofence object
      */
     public Geofence toGeofence() {
