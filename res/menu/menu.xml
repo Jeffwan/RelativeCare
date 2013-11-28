@@ -15,18 +15,13 @@
   limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item
-        android:id="@+id/menu_item_clear_geofence1"
-        android:title="@string/menu_item_clear_geofence1"></item>
-    <item
-        android:id="@+id/menu_item_clear_geofence2"
-        android:title="@string/menu_item_clear_geofence2"></item>
-    <item
-        android:id="@+id/menu_item_clear_geofences"
-        android:title="@string/menu_item_clear_all_geofences"></item>
+
     <item
         android:id="@+id/menu_item_clear_geofence_history"
         android:title="@string/menu_item_clear_geofence_history"></item>
+    <item
+        android:id="@+id/menu_item_remove_all_geofence"
+        android:title="@string/menu_item_remove_all_geofences"></item>
 
 
 </menu>

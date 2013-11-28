@@ -37,7 +37,6 @@ public class GPSInfoProvider {
                 System.out.println(name);
             }
 
-
             Criteria criteria = new Criteria();
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
             criteria.setCostAllowed(true);
@@ -73,6 +72,7 @@ public class GPSInfoProvider {
             double latitude = location.getLatitude();
             double accuracy = location.getAccuracy();
 
+            //
             String locations = "longtitude: "+ longitude + " latitude: "+ latitude;
             SharedPreferences.Editor editor = sp.edit();
             editor.putString("lastLocation", locations);

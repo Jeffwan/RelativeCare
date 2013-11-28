@@ -7,6 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -22,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -32,6 +35,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -41,27 +45,32 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import edu.pitt.relativecare.GeofenceUtils.REMOVE_TYPE;
-import edu.pitt.relativecare.GeofenceUtils.REQUEST_TYPE;
+import edu.pitt.relativecare.dao.SimpleGeofence;
+import edu.pitt.relativecare.utils.GeofenceUtils;
+import edu.pitt.relativecare.utils.GeofenceUtils.REMOVE_TYPE;
+import edu.pitt.relativecare.utils.GeofenceUtils.REQUEST_TYPE;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * Created by jeffwan on 11/19/13.
  */
-public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongClickListener {
+public class GeoFenceActivity extends Activity implements 
+			GoogleMap.OnMapLongClickListener,
+			GoogleMap.OnMarkerClickListener,
+			GoogleMap.OnInfoWindowClickListener {
 
-	private static final String TAG = "GeoFence";
+	private static final String TAG = "GeoFenceActivity";
     private GoogleMap mMap;
     private MapFragment mMapFragment;
 
-    
     /*
      * Use to set an expiration time for a geofence. After this amount
      * of time Location Services will stop tracking the geofence.
@@ -70,7 +79,7 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
      * a geofence indefinitely, set the expiration time to
      * Geofence#NEVER_EXPIRE.
      */
-    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
+    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 1;
     private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
 
@@ -99,6 +108,8 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
     
     private SimpleGeofence geofenceMap;
     
+    private SimpleGeofence geofenceEdit;
+    
     // decimal formats for latitude, longitude, and radius
     private DecimalFormat mLatLngFormat;
     private DecimalFormat mRadiusFormat;
@@ -114,7 +125,9 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 
     // Store the list of geofences to remove
     private List<String> mGeofenceIdsToRemove;
-
+    
+    // Store the list of geofence to draw on the map
+    private List<SimpleGeofence> geofencestoDraw;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,11 +166,10 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
         mGeofenceRequester = new GeofenceRequester(this);
         // Instantiate a Geofence remover
         mGeofenceRemover = new GeofenceRemover(this);
-
         
-        geofenceMap = mPrefs.getGeofence("1");
-        
-        
+        //get fenceList
+        geofencestoDraw = getFenceList();
+       
         setContentView(R.layout.activity_geofence);
        
         // 判断连接状态
@@ -172,33 +184,60 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
             mMap.setMyLocationEnabled(true);
             mMap.setIndoorEnabled(true);
             mMap.setOnMapLongClickListener(this);
+            mMap.setOnMarkerClickListener(this);
+            mMap.setOnInfoWindowClickListener(this);
             
-            if (geofenceMap!=null) {
-                LatLng point = new LatLng(geofenceMap.getLatitude(), geofenceMap.getLongitude());
-                // 1. Add a marker to map with info window
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(point)
-                        .title(geofenceMap.getName())
-                        .snippet("Ridus: "+geofenceMap.getRadius())
-                        .draggable(false)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.showInfoWindow();
+            
+            // Get all geofence and then draw them.
+            Log.i(TAG,Integer.toString(geofencestoDraw.size()));
+            for(int i=0; i<geofencestoDraw.size(); i++) {
+            	geofenceMap =geofencestoDraw.get(i);
+            	
+            	Log.i(TAG, geofenceMap.getId()+ " " +geofenceMap.getName()+ " " +geofenceMap.getRadius());
+                // if not null, draw it.
+            	if (geofenceMap!=null) {
+                    LatLng point = new LatLng(geofenceMap.getLatitude(), geofenceMap.getLongitude());
+                    // 1. Add a marker to map with info window
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(point)
+                            .title(geofenceMap.getName())
+                            .snippet("fence: "+geofenceMap.getId()+" Ridus: "+(int)geofenceMap.getRadius())
+                            .draggable(false)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    Marker marker = mMap.addMarker(markerOptions);
+                    marker.showInfoWindow();
 
-                // 2. Instantiates a new CircleOptions object and defines the center and radius
-                CircleOptions circleOptions = new CircleOptions()
-                        .strokeColor(Color.RED)
-                        .strokeWidth(0)
-                        .fillColor(0x40ff0000)
-                        .center(point)
-                        .radius(geofenceMap.getRadius()); // In meters -- here customize according to the user configuration
-                Circle circle = mMap.addCircle(circleOptions);
+                    // 2. Instantiates a new CircleOptions object and defines the center and radius
+                    CircleOptions circleOptions = new CircleOptions()
+                            .strokeColor(Color.RED)
+                            .strokeWidth(0)
+                            .fillColor(0x40ff0000)
+                            .center(point)
+                            .radius(geofenceMap.getRadius()); // In meters -- here customize according to the user configuration
+                    Circle circle = mMap.addCircle(circleOptions);
+                }
             }
-
         }
     }
     
-    /*
+    private List<SimpleGeofence> getFenceList() {
+   		 // ArrayList
+   		List<SimpleGeofence> geofencestoDraw = new ArrayList<SimpleGeofence>();
+           Log.i(TAG, mPrefs.getLastGeofenceId());
+           // 循环拿到所有的SimpleGeofence对象
+           if (!TextUtils.isEmpty(mPrefs.getLastGeofenceId())) {
+           	for(int i=0; i<Integer.parseInt(mPrefs.getLastGeofenceId()); i++) {
+           		if (mPrefs.getGeofence(Integer.toString(i+1))!=null) { // 这里一定是i+1 啊大哥！折腾死我了
+           			geofenceMap = mPrefs.getGeofence(Integer.toString(i+1)); 
+                   	geofencestoDraw.add(geofenceMap);
+   				}
+               }
+   		}        
+   		return geofencestoDraw;
+   	}
+
+
+	/*
      * Handle results returned to this Activity by other Activities started with
      * startActivityForResult(). In particular, the method onConnectionFailed() in
      * GeofenceRemover and GeofenceRequester may call startResolutionForResult() to
@@ -296,15 +335,31 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
+		switch (item.getItemId()) {
+		// 这里只是SP 里面清楚，下次Draw Map 时候就没有了，但是Listener应该在
+		case R.id.menu_item_clear_geofence_history:
+			for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
+				mPrefs.clearGeofence(Integer.toString(i+1));
+			}
+			mMap.clear();
+			return true;
+		// 清除Register, 然后清地图
+		case R.id.menu_item_remove_all_geofence:
+			onUnregisterByPendingIntentClicked();
+			for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
+				mPrefs.clearGeofence(Integer.toString(i+1));
+			}
+			mMap.clear();
+			break;
+		default:
+			break;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-//		mPrefs.setGeofence("1", mUIGeofence1);
-//      mPrefs.setGeofence("2", mUIGeofence2);
 	}
 
 	/**
@@ -341,20 +396,16 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
      *
      * @param view The view that triggered this callback
      */
-    public void onUnregisterByPendingIntentClicked(View view) {
+    public void onUnregisterByPendingIntentClicked() {
         /*
-         * Remove all geofences set by this app. To do this, get the
-         * PendingIntent that was added when the geofences were added
-         * and use it as an argument to removeGeofences(). The removal
-         * happens asynchronously; Location Services calls
-         * onRemoveGeofencesByPendingIntentResult() (implemented in
-         * the current Activity) when the removal is done
+         * Remove all geofences set by this app. To do this, get the PendingIntent that was added when the geofences were added
+         * and use it as an argument to removeGeofences(). The removal happens asynchronously; Location Services calls
+         * onRemoveGeofencesByPendingIntentResult() (implemented in the current Activity) when the removal is done
          */
 
         /*
-         * Record the removal as remove by Intent. If a connection error occurs,
-         * the app can automatically restart the removal if Google Play services
-         * can fix the error
+         * Record the removal as remove by Intent. If a connection error occurs, the app can automatically restart the removal
+         * if Google Play services can fix the error
          */
         // Record the type of removal
         mRemoveType = GeofenceUtils.REMOVE_TYPE.INTENT;
@@ -386,54 +437,51 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 
     }
 
-//    /**
-//     * Called when the user clicks the "Remove geofence 1" button
-//     * @param view The view that triggered this callback
-//     */
-//    public void onUnregisterGeofence1Clicked(View view) {
-//        /*
-//         * Remove the geofence by creating a List of geofences to
-//         * remove and sending it to Location Services. The List
-//         * contains the id of geofence 1 ("1").
-//         * The removal happens asynchronously; Location Services calls
-//         * onRemoveGeofencesByPendingIntentResult() (implemented in
-//         * the current Activity) when the removal is done.
-//         */
-//
-//        // Create a List of 1 Geofence with the ID "1" and store it in the global list
-//        mGeofenceIdsToRemove = Collections.singletonList("1");
-//
-//        /*
-//         * Record the removal as remove by list. If a connection error occurs,
-//         * the app can automatically restart the removal if Google Play services
-//         * can fix the error
-//         */
-//        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
-//
-//        /*
-//         * Check for Google Play services. Do this after
-//         * setting the request type. If connecting to Google Play services
-//         * fails, onActivityResult is eventually called, and it needs to
-//         * know what type of request was in progress.
-//         */
-//        if (!servicesConnected()) {
-//
-//            return;
-//        }
-//
-//        // Try to remove the geofence
-//        try {
-//            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
-//
-//        // Catch errors with the provided geofence IDs
-//        } catch (IllegalArgumentException e) {
-//            e.printStackTrace();
-//        } catch (UnsupportedOperationException e) {
-//            // Notify user that previous request hasn't finished.
-//            Toast.makeText(this, R.string.remove_geofences_already_requested_error,
-//                        Toast.LENGTH_LONG).show();
-//        }
-//    }
+    /**
+     * Called when the user clicks the "Remove geofence 1" button
+     * @param view The view that triggered this callback
+     */
+    public void onUnregisterGeofenceClicked(String id) {
+        /*
+         * Remove the geofence by creating a List of geofences to remove and sending it to Location Services. The List
+         * contains the id of geofence 1 ("1"). The removal happens asynchronously; Location Services calls
+         * onRemoveGeofencesByPendingIntentResult() (implemented in the current Activity) when the removal is done.
+         */
+
+        // Create a List of 1 Geofence with the ID "1" and store it in the global list
+    	// 这里把ID 改掉就可以了
+    	
+        mGeofenceIdsToRemove = Collections.singletonList(id);
+
+
+        
+        /*
+         * Record the removal as remove by list. If a connection error occurs, the app can automatically restart
+         * the removal if Google Play services can fix the error
+         */
+        mRemoveType = GeofenceUtils.REMOVE_TYPE.LIST;
+
+        /*
+         * Check for Google Play services. Do this after setting the request type. If connecting to Google Play services
+         * fails, onActivityResult is eventually called, and it needs to know what type of request was in progress.
+         */
+        if (!servicesConnected()) {
+            return;
+        }
+
+        // Try to remove the geofence
+        try {
+            mGeofenceRemover.removeGeofencesById(mGeofenceIdsToRemove);
+
+        // Catch errors with the provided geofence IDs
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (UnsupportedOperationException e) {
+            // Notify user that previous request hasn't finished.
+            Toast.makeText(this, R.string.remove_geofences_already_requested_error,
+                        Toast.LENGTH_LONG).show();
+        }
+    }
 
    
 
@@ -444,25 +492,22 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
      * Location Services sends to this app's broadcast receiver when
      * Location Services detects a geofence transition. Send the List
      * and the PendingIntent to Location Services.
+     * @param geofenceID 
      * @param markerAddress 
      * @param fenceName 
      * @param radius 
      */
-    public void onRegisterClicked(LatLng point, String name, String address, int radius) {
+    public void onRegisterClicked(String geofenceID, LatLng point, String name, String address, int radius) {
+    	Log.i(TAG, geofenceID +" " + name + " " + Integer.toString(radius));
 
-        mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;
-        
+        mRequestType = GeofenceUtils.REQUEST_TYPE.ADD;        
         if (!servicesConnected()) {
             return;
         }
-
-
-        /*
-         * Create a version of geofence 1 that is "flattened" into individual fields. This
-         * allows it to be stored in SharedPreferences.
-         */
+        
+        // all parameters are from AlertDialog 
         mUIGeofence1 = new SimpleGeofence(
-            "1",
+            geofenceID,
             // Get latitude, longitude, and radius from the UI
             name,
             address,
@@ -473,21 +518,37 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
             GEOFENCE_EXPIRATION_IN_MILLISECONDS,
             // Only detect entry transitions
             Geofence.GEOFENCE_TRANSITION_ENTER);
+        
+        // Store the lastest geofenceID as latest id
+        mPrefs.setLastGeofenceId(geofenceID);
+        // Store this geofence in SharePreference
+        mPrefs.setGeofence(geofenceID, mUIGeofence1);
+        
+        // 1. Add a marker to map with info window
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(point)
+                .title(name)
+                .snippet("fence: "+geofenceID+" Ridus: "+radius)
+                .draggable(false)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        Marker marker = mMap.addMarker(markerOptions);
+        marker.showInfoWindow();
 
-        // Store this flat version in SharedPreferences
-        mPrefs.setGeofence("1", mUIGeofence1);
-
-        /*
-         * Add Geofence objects to a List. toGeofence()
-         * creates a Location Services Geofence object from a
-         * flat object
-         */
+        // 2. Instantiates a new CircleOptions object and defines the center and radius
+        CircleOptions circleOptions = new CircleOptions()
+                .strokeColor(Color.RED)
+                .strokeWidth(0)
+                .fillColor(0x40ff0000)
+                .center(point)
+                .radius(radius); // In meters -- here customize according to the user configuration
+        Circle circle = mMap.addCircle(circleOptions);
+        
+        // Add Geofence objects to a List. toGeofence() creates a Location Services Geofence object from a flat object
         mCurrentGeofences.add(mUIGeofence1.toGeofence());
 
         // Start the request. Fail if there's already a request in progress
         try {
-            // Try to add geofences
-            mGeofenceRequester.addGeofences(mCurrentGeofences);
+            mGeofenceRequester.addGeofences(mCurrentGeofences);            // Try to add geofences
         } catch (UnsupportedOperationException e) {
             // Notify user that previous request hasn't finished.
             Toast.makeText(this, R.string.add_geofences_already_requested_error,
@@ -499,26 +560,12 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
 	@Override
     public void onMapLongClick(LatLng point) {
         Log.i(TAG, point.toString());
-        Location location = new Location("Test");
-        location.setLatitude(point.latitude);
-        location.setLongitude(point.longitude);
-        location.setTime(new Date().getTime());
+//        Location location = new Location("Test");
+//        location.setLatitude(point.latitude);
+//        location.setLongitude(point.longitude);
+//        location.setTime(new Date().getTime());
 
-        // Get marker address from Latitude and Longtitude
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        String markerAddress = "";
-        if (Geocoder.isPresent()) {
-            try {
-                List<Address> addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1);
-                Address address = addresses.get(0);
-                markerAddress = address.getAddressLine(0) +
-                        ", "+ address.getAddressLine(1) + ", " + address.getAddressLine(2);
-                Log.i(TAG, markerAddress);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        String markerAddress = getAddress(point);
 
         // 1. Show a setting window to determine the radius,name
         showConfigDialog(point, markerAddress);
@@ -529,10 +576,10 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
     private void showConfigDialog(final LatLng point, final String markerAddress) {
         // TODO Auto-generated method stub
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("GeoFence Configuaration");
+        builder.setTitle("Add GeoFence");
 
         // get all UI widget
-        View view = View.inflate(getApplicationContext(), R.layout.geofence_setting, null);
+        View view = View.inflate(getApplicationContext(), R.layout.geofence_create, null);
         final EditText et_fencename = (EditText) view.findViewById(R.id.fencename);
         TextView et_fenceaddress = (TextView) view.findViewById(R.id.fenceaddress);
         final Spinner sp_radius = (Spinner) view.findViewById(R.id.radius);
@@ -553,30 +600,20 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
                     Toast.makeText(getApplicationContext(), "fence name can't be empty", 1).show();
                     return;
                 }
-
-                // 1. Add a marker to map with info window
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(point)
-                        .title(fenceName)
-                        .snippet("Ridus: "+fenceRadius)
-                        .draggable(false)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.showInfoWindow();
-
-                // 2. Instantiates a new CircleOptions object and defines the center and radius
-                CircleOptions circleOptions = new CircleOptions()
-                        .strokeColor(Color.RED)
-                        .strokeWidth(0)
-                        .fillColor(0x40ff0000)
-                        .center(point)
-                        .radius(fenceRadius); // In meters -- here customize according to the user configuration
-                Circle circle = mMap.addCircle(circleOptions);
-                dialog.dismiss();
-                 
-                // 3. Save Geofence
-                onRegisterClicked(point,fenceName, markerAddress, fenceRadius);
                 
+             // Dynamicly set geofence ID increasingly
+                String geofenceID;
+                
+                if (TextUtils.isEmpty(mPrefs.getLastGeofenceId())) {
+                	geofenceID = "1";
+                } else {
+                	geofenceID = Integer.toString(Integer.parseInt(mPrefs.getLastGeofenceId()) + 1);
+                }
+                
+                // move Step 1,2 into onRegisterClicked function, i
+                // 3. Save Geofence
+                onRegisterClicked(geofenceID, point, fenceName, markerAddress, fenceRadius);
+                dialog.dismiss();
             }
         });
 
@@ -593,6 +630,26 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
         dialog = builder.show();
     }
 
+    private String getAddress(LatLng point) {
+		// Get marker address from Latitude and Longtitude
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        String markerAddress = "";
+        if (Geocoder.isPresent()) {
+            try {
+                List<Address> addresses = geocoder.getFromLocation(point.latitude, point.longitude, 1);
+                Address address = addresses.get(0);
+                markerAddress = address.getAddressLine(0) +
+                        ", "+ address.getAddressLine(1) + ", " + address.getAddressLine(2);
+           
+                Log.i(TAG, markerAddress);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+		return markerAddress;
+	}
+       
     /**
      * Define a Broadcast receiver that receives updates from connection listeners and
      * the geofence transition service.
@@ -698,5 +755,95 @@ public class GeoFenceActivity extends Activity implements GoogleMap.OnMapLongCli
             return mDialog;
         }
     }
+	@Override
+	public void onInfoWindowClick(final Marker marker) {
+		
+		geofenceEdit = SimpleGeofence.findFenceForMarker(marker, getFenceList());
+		Log.i(TAG, "info window clicked");
+		Log.i(TAG, marker.getId()+ marker.getTitle());
+		
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Edit GeoFence");
+
+        // get all UI widget
+        View view = View.inflate(getApplicationContext(), R.layout.geofence_edit, null);
+        final EditText et_fencename_edit = (EditText) view.findViewById(R.id.fencename_edit);
+        final TextView tv_fenceaddress_edit = (TextView) view.findViewById(R.id.fenceaddress_edit);
+        final Spinner sp_radius_edit = (Spinner) view.findViewById(R.id.radius_edit);
+        Button btn_cancel_edit = (Button) view.findViewById(R.id.btn_cancel_edit);
+        Button btn_delete_editButton = (Button) view.findViewById(R.id.btn_delete_edit);
+        Button btn_ok_edit = (Button) view.findViewById(R.id.btn_ok_edit);
+
+        // Set values for view
+        tv_fenceaddress_edit.setText(geofenceEdit.getAddress());
+        et_fencename_edit.setText(geofenceEdit.getName());
+        ArrayAdapter myAdap = (ArrayAdapter) sp_radius_edit.getAdapter();
+        sp_radius_edit.setSelection(myAdap.getPosition(Integer.toString((int)geofenceEdit.getRadius())));
+        
+        btn_ok_edit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Check if fenceName is empty
+                if (TextUtils.isEmpty(et_fencename_edit.getText().toString().trim())) {
+                    Toast.makeText(getApplicationContext(), "fence name can't be empty", 1).show();
+                    return;
+                }
+                
+                // TODO: we should remove the marker and circle of the old values here. -- Remove by id
+       
+                
+                // Save Geofence
+                LatLng point = new LatLng(geofenceEdit.getLatitude(),geofenceEdit.getLatitude());
+                String name = et_fencename_edit.getText().toString().trim();
+                String address = tv_fenceaddress_edit.getText().toString().trim();
+                int fenceRadius = Integer.parseInt(sp_radius_edit.getSelectedItem().toString().trim());
+                
+                // 这里暂时不用addGeofence了，直接edit SP 里数据就可以了
+                // onRegisterClicked(geofenceEdit.getId(), point, name,  address, fenceRadius);
+                mPrefs.editGeofence(geofenceEdit.getId(), name, fenceRadius);  
+                dialog.dismiss();     
+                
+            }
+        });
+
+
+        btn_cancel_edit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Log.i(TAG, "calcel clicked");
+                dialog.dismiss();
+                return;
+            }
+        });
+        
+        btn_delete_editButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// Unregister geofence 
+				onUnregisterGeofenceClicked(geofenceEdit.getId());
+				// Clear SharePerference
+				mPrefs.clearGeofence(geofenceEdit.getId());
+				// Remove marker and circle 
+				marker.remove();
+				
+				
+				
+				Log.i(TAG, "Delete clicked");
+				dialog.dismiss();
+				return;
+			}
+		});
+        
+        // Show alert dialog
+        builder.setView(view);
+        dialog = builder.show();	
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+		// TODO Auto-generated method stub
+		Log.i(TAG, marker.getPosition().toString());
+		return false;
+	}
     
+    
+	
 }

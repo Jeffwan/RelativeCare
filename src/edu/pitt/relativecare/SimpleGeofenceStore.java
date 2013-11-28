@@ -16,11 +16,19 @@
 
 package edu.pitt.relativecare;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.android.gms.maps.internal.m;
+
+import edu.pitt.relativecare.dao.SimpleGeofence;
+import edu.pitt.relativecare.utils.GeofenceUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * Storage for geofence values, implemented in SharedPreferences.
@@ -95,11 +103,20 @@ public class SimpleGeofenceStore {
         // Commit the changes
         editor.commit();
     }
+    
+    
+    public void editGeofence(String id, String geofenceName, int fenceRadius) {
+		Editor editor = mPrefs.edit();
+		editor.putString(getGeofenceFieldKey(id, GeofenceUtils.KEY_NAME), geofenceName);
+		editor.putFloat(getGeofenceFieldKey(id, GeofenceUtils.KEY_RADIUS), (float)fenceRadius);
+		
+		editor.commit();
+	}
 
     public void clearGeofence(String id) {
 
         // Remove a flattened geofence object from storage by removing all of its keys
-    	// 删除的话，直接移除字段，但是这样只是删除了SP中的，真正的有UnRegister么？
+    	// 删除的话，直接移除字段，但是这样只是删除了SP中的，真正的有UnRegister么？ 这个只是移除记录，需要unRigister一下
         Editor editor = mPrefs.edit();
         editor.remove(getGeofenceFieldKey(id, GeofenceUtils.KEY_NAME));
         editor.remove(getGeofenceFieldKey(id, GeofenceUtils.KEY_ADDRESS));
@@ -111,6 +128,22 @@ public class SimpleGeofenceStore {
         editor.commit();
     }
 
+    public String getLastGeofenceId() {
+    	
+    	return mPrefs.getString(GeofenceUtils.KEY_GEOFENCE_LAST_ID, GeofenceUtils.INVALID_STRING_VALUE);
+    	
+	}
+    
+    
+    public void setLastGeofenceId(String lastId) {
+    	
+    	Editor editor = mPrefs.edit();
+    	editor.putString(GeofenceUtils.KEY_GEOFENCE_LAST_ID, lastId);
+        editor.commit();
+        
+	}
+    
+    
     /**
      * Given a Geofence object's ID and the name of a field
      * (for example, GeofenceUtils.KEY_LATITUDE), return the key name of the
@@ -128,4 +161,6 @@ public class SimpleGeofenceStore {
                 "_" +
                 fieldName;
     }
+
+
 }

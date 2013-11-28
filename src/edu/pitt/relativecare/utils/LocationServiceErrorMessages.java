@@ -1,4 +1,4 @@
-package edu.pitt.relativecare;
+package edu.pitt.relativecare.utils;
 
 /*
  * Copyright (C) 2013 The Android Open Source Project
@@ -17,6 +17,9 @@ package edu.pitt.relativecare;
  */
 
 import com.google.android.gms.common.ConnectionResult;
+
+import edu.pitt.relativecare.R;
+import edu.pitt.relativecare.R.string;
 import android.content.Context;
 import android.content.res.Resources;
 

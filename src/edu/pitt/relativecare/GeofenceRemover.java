@@ -8,6 +8,8 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationStatusCodes;
 import com.google.android.gms.location.LocationClient.OnRemoveGeofencesResultListener;
 
+import edu.pitt.relativecare.utils.GeofenceUtils;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -36,7 +38,9 @@ public class GeofenceRemover implements
             OnConnectionFailedListener,
             OnRemoveGeofencesResultListener {
 
-    // Storage for a context from the calling client
+    private static final String TAG = "GeofenceRemover";
+
+	// Storage for a context from the calling client
     private Context mContext;
 
     // Stores the current list of geofences
@@ -161,11 +165,13 @@ public class GeofenceRemover implements
             // If removeGeofencesByIntent was called
             case INTENT :
                 mLocationClient.removeGeofences(mCurrentIntent, this);
+                Log.i(TAG, "remove all geofences successfully");
                 break;
 
             // If removeGeofencesById was called
             case LIST :
                 mLocationClient.removeGeofences(fenceList, this);
+                Log.i(TAG, "remove " + fenceList.get(0) + "geofences successfully");
                 break;
         }
     }

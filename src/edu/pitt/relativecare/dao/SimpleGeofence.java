@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package edu.pitt.relativecare;
+package edu.pitt.relativecare.dao;
+
+import java.util.Iterator;
+import java.util.List;
+
+import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+
+import edu.pitt.relativecare.utils.GeofenceUtils;
 
 /**
  * A single Geofence object, defined by its center (latitude and longitude position) and radius.
  */
 public class SimpleGeofence {
-    // Instance variables
+    private static final String TAG = "SimpleGeofence";
+	// Instance variables
 	// 这里需要注意，id 是String类型, Transition是 int类型
     private final String mId;
     private final String mName;
@@ -93,7 +103,7 @@ public class SimpleGeofence {
         return mRadius;
     }
 
-    public long getExpirationDuration() {
+	public long getExpirationDuration() {
         return mExpirationDuration;
     }
 
@@ -120,4 +130,28 @@ public class SimpleGeofence {
                        .setExpirationDuration(mExpirationDuration)
                        .build();
     }
+
+	public static SimpleGeofence findFenceForMarker(Marker marker,
+			List<SimpleGeofence> fenceList) {
+		LatLng markerLatLng = marker.getPosition();
+		Iterator locaIterator = fenceList.iterator();
+		SimpleGeofence localSimpleGeofence;
+		
+		double d1, d2, d3, d4;
+		
+		do {
+			if (!locaIterator.hasNext()) 
+				return null;
+				localSimpleGeofence = (SimpleGeofence) locaIterator.next();
+				d1 = GeofenceUtils.RoundTo4Decimals(localSimpleGeofence.getLatitude());
+				d2 = GeofenceUtils.RoundTo4Decimals(localSimpleGeofence.getLongitude());
+				d3 = GeofenceUtils.RoundTo4Decimals(markerLatLng.latitude);
+				d4 = GeofenceUtils.RoundTo4Decimals(markerLatLng.longitude);
+			Log.i(TAG, "fence: "+ Double.toString(d1)+ " " + Double.toString(d2));
+			Log.i(TAG, "marke: "+ Double.toString(d3)+ " " + Double.toString(d4));
+			
+		} while ((d1!=d3) || (d2!=d4));
+		
+		return localSimpleGeofence;
+	}
 }

@@ -27,14 +27,24 @@ public class SmsReceiver extends BroadcastReceiver {
             String body = smsMessage.getMessageBody();
 
             if ("#*location*#".equals(body)) {
+            	// 这边可能需要根据最新的Location 改动一些，还要就是拼接字符串，写个单独的函数，
                 String location = GPSInfoProvider.getInstance(context).getLastLocation();
                 Log.i(TAG,"return location of the phone"+ location);
                 if (TextUtils.isEmpty(location)) {
-                    SmsManager.getDefault().sendTextMessage(sender,null,location,null,null);
+                    SmsManager.getDefault().sendTextMessage(sender,null,lntlngToLink(location),null,null);
                 }
                 abortBroadcast();
             }
 
         }
     }
+
+    // 拼接一下，要考 location 的存储类型
+	private String lntlngToLink(String location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
+    
+    
 }

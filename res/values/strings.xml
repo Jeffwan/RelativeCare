@@ -2,7 +2,7 @@
 <resources>
 
       <!-- app name and title -->
-    <string name="app_name">Geofence Detection</string>
+    <string name="app_name">RelativeCare</string>
     <string name="title_activity_geofence">Geofence Entry</string>
 
     <!-- UI -->
@@ -10,10 +10,9 @@
     <string name="geofence2">Geofence 2</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
-    <string name="menu_item_clear_geofence1">Clear geofence 1</string>
-    <string name="menu_item_clear_geofence2">Clear geofence 2</string>
-    <string name="menu_item_clear_all_geofences">Clear all geofences</string>
     <string name="menu_item_clear_geofence_history">Clear stored geofences</string>
+    <string name="menu_item_remove_all_geofences">Remove stored geofences</string>
+    
     <string name="radius">Radius</string>
 
     <!-- Messages -->

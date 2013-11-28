@@ -9,6 +9,8 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationStatusCodes;
 import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListener;
 
+import edu.pitt.relativecare.utils.GeofenceUtils;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -99,7 +101,7 @@ public class GeofenceRequester
             /**
              * Request a connection to Location Services. This call returns immediately,
              * but the request is not complete until onConnected() or onConnectionFailure() is called.
-             * connect 成功以后 会有callback 来真正add 
+             * connect 成功以后 会有callback 来真正add,在 onConnected方法里面
              */
             
             getLocationClient().connect();

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package edu.pitt.relativecare;
+package edu.pitt.relativecare.utils;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  * This class defines constants used by location sample apps.
@@ -81,6 +85,8 @@ public final class GeofenceUtils {
     // The prefix for flattened geofence keys
     public static final String KEY_PREFIX =
             "edu.pitt.relativecare.KEY";
+    
+    public static final String KEY_GEOFENCE_LAST_ID = "edu.pitt.relativecare.KEY_GEOFENCE_LAST_ID";
 
     // Invalid values, used to test geofence storage when retrieving geofences
     public static final long INVALID_LONG_VALUE = -999l;
@@ -114,5 +120,14 @@ public final class GeofenceUtils {
     public static final String EMPTY_STRING = new String();
 
     public static final CharSequence GEOFENCE_ID_DELIMITER = ",";
+    
+    
+    public static double RoundTo4Decimals(double paramDouble) {
+    	DecimalFormatSymbols localDecimalFormatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+    	localDecimalFormatSymbols.setDecimalSeparator('.');
+    	localDecimalFormatSymbols.setGroupingSeparator(',');
+    	
+    	return Double.valueOf(new DecimalFormat("###.####", localDecimalFormatSymbols).format(paramDouble)).doubleValue();
+    }
 
 }
