@@ -15,13 +15,34 @@
   limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+	<item
+	    android:icon="@drawable/mapview"
+	    android:id="@+id/menu_view"
+	    android:title="@string/map_type"
+	    android:showAsAction="always">
+	    <menu>
+	        <item
+	            android:id="@+id/normal"
+	            android:title="@string/roadmap"
+	            android:showAsAction="always" />
+	        <item
+	            android:id="@+id/satellite"
+	            android:title="@string/satellite"
+	            android:showAsAction="always" />
+	        <item
+	            android:id="@+id/hybrid"
+	            android:title="@string/hybrid"
+	            android:showAsAction="always" />
+	        <item
+	            android:id="@+id/terrain"
+	            android:title="@string/terrain"
+	            android:showAsAction="always" />
+	    </menu>
+    </item>	
     <item
         android:id="@+id/menu_item_clear_geofence_history"
         android:title="@string/menu_item_clear_geofence_history"></item>
     <item
         android:id="@+id/menu_item_remove_all_geofence"
         android:title="@string/menu_item_remove_all_geofences"></item>
-
-
 </menu>

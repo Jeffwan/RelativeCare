@@ -13,9 +13,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.gsm.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -29,12 +31,14 @@ import java.util.List;
 public class ReceiveTransitionsIntentService extends IntentService {
 
     private static final String TAG = "ReceiveTransitionsIntentService";
+    private SimpleGeofenceStore mPrefs;
 
 	/**
      * Sets an identifier for this class' background thread
      */
     public ReceiveTransitionsIntentService() {
         super("ReceiveTransitionsIntentService");
+        mPrefs = new SimpleGeofenceStore(this);
     }
 
     /**
@@ -98,6 +102,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 	// 任何 Enter Exit 后面的行为，都可以在这里添加
                 	sendNotification(transitionType, simpleGeofence.getName());
                 	sendEmail();
+                	sendMessage();
                 }
                 
                 
@@ -135,19 +140,30 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
     // Use Gmails Authentication to send Email
     private void sendEmail() {
-		// TODO Auto-generated method stub
+    	// get contact information
+    	String email = mPrefs.getContactEmail();
+    	
     	try {   
             GMailSender sender = new GMailSender("", ""); // 账号密码
             sender.sendMail("This is Subject",   
                     "This is Body",   
                     "seedjeffwan@gmail.com",   
-                    "seedjeffwan@126.com");   
+                    email);   
         } catch (Exception e) {   
             Log.e("SendMail", e.getMessage(), e);   
-        } 
-
-		
+        } 	
 	}
+    
+    private void sendMessage() {
+    	String number = mPrefs.getContactNumber();
+    	String content = "alert!";
+    	// TODO: change API 4.0 version to replace the deprecated ones.
+    	SmsManager smsManager = SmsManager.getDefault();
+    	smsManager.sendTextMessage(number, null, content, null, null);
+    	Log.i(TAG, "send message successfully");
+    	
+    }
+    
 
 	/**
      * Posts a notification in the notification bar when a transition is detected.

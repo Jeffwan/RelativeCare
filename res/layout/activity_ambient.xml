@@ -1,106 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+	   
 		<TextView
-           android:id="@+id/temperatureText"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="Temperature"
-           android:textSize="20sp"
-           android:textStyle="bold"
-           android:layout_marginTop="50dp"
+            android:id="@+id/temperature_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Temperature"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="50dp"
            />
-       <TextView
-           android:id="@+id/temperatureValue"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="30°C"
-           android:textSize="16sp"
-           android:textStyle="bold"
+		<TextView
+            android:id="@+id/temperature_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="30°C"
+            android:textSize="16sp"
            />
-       
-         <TextView
-           android:id="@+id/TemperatureHint"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:text="The surrounding temperature is a litter high, please wear few clothes in this place. "
+		<TextView
+            android:id="@+id/temperature_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The surrounding temperature is a litter high, please wear few clothes in this place. "
+            android:textSize="16sp"
+           	android:textStyle="bold"
+           />
          
-           android:textSize="15sp"
-           android:textStyle="bold"
-           android:layout_marginTop="80dp"
-           android:layout_marginLeft="20dp"
+		<TextView
+            android:id="@+id/humidity_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Humidity"
+            android:textSize="20sp"
+            android:textStyle="bold"
            />
-         <TextView
-           android:id="@+id/Humiture"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:textColor="#698B69"
-           android:text="Humiture:"
-            android:shadowRadius="5dp"
-           android:textSize="20sp"
-           android:textStyle="bold"
-           android:layout_marginTop="160dp"
+		<TextView
+            android:id="@+id/humidity_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10%"
+            android:textSize="16sp"
            />
-       <TextView
-           android:id="@+id/HumitureNumber"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:textColor="#698B69"
-           android:text="10%"
-           android:textSize="20sp"
-           android:textStyle="bold"
-           android:layout_marginTop="160dp"
-           android:layout_marginLeft="120dp"
+		<TextView
+            android:id="@+id/humidity_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The surrounding environment is a little drier, please drink more water~."
+            android:textSize="16sp"
+            android:textStyle="bold"
            />
-         <TextView
-           android:id="@+id/HumitureText"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-         
-           android:text="The surrounding environment is a little drier, please drink more water~."
-         
-           android:textSize="15sp"
-           android:textStyle="bold"
-           android:layout_marginTop="190dp"
-           android:layout_marginLeft="20dp"
+        
+		
+        <TextView
+            android:id="@+id/pressure_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pressure"
+            android:textSize="20sp"
+            android:textStyle="bold"
            />
-          <TextView
-           android:id="@+id/Pressure"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:textColor="#B8860B"
-           android:text="Pressure:"
-            android:shadowRadius="5dp"
-           android:textSize="20sp"
-           android:textStyle="bold"
-           android:layout_marginTop="260dp"
+		<TextView
+			android:id="@+id/pressure_value"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="948 hPa"
+			android:textSize="16sp"
            />
-       <TextView
-           android:id="@+id/PressureNumber"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:textColor="#B8860B"
-           android:text="High"
-           android:textSize="20sp"
-           android:textStyle="bold"
-           android:layout_marginTop="260dp"
-           android:layout_marginLeft="120dp"
+		<TextView
+			android:id="@+id/pressure_hint"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Please remember to rest in this place."
+			android:textSize="16sp"
+			android:textStyle="bold"
            />
-         <TextView
-           android:id="@+id/PressureText"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-         
-           android:text="Please remember to rest in this place."
-         
-           android:textSize="15sp"
-           android:textStyle="bold"
-           android:layout_marginTop="290dp"
-           android:layout_marginLeft="20dp"
-           />
-    
-    
+		
 </LinearLayout>

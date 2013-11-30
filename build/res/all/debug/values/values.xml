@@ -595,7 +595,7 @@
     <string name="add_geofences_already_requested_error">        Can\'t add geofences, previous request hasn\'t finished.</string>
     <string name="add_geofences_result_failure">        Add Geofences: Failure, error code %1$d GeofenceRequestIds=%2$s</string>
     <string name="add_geofences_result_success">        Add Geofences: Success GeofenceRequestIds=%1$s</string>
-    <string name="app_name">Geofence Detection</string>
+    <string name="app_name">RelativeCare</string>
     <!-- From: file:/Users/jeffwan/Documents/workspace/RelativeCare/build/exploded-bundles/ComGoogleAndroidGmsPlayServices4030.aar/res/values/strings.xml -->
     <eat-comment />
 
@@ -672,10 +672,8 @@
     <string name="latitude_error_message">        Latitude should be in the range -90 to 90 degrees</string>
     <string name="longitude">Longitude</string>
     <string name="longitude_error_message">        Longitude should be in the range -180 to 180 degrees</string>
-    <string name="menu_item_clear_all_geofences">Clear all geofences</string>
-    <string name="menu_item_clear_geofence1">Clear geofence 1</string>
-    <string name="menu_item_clear_geofence2">Clear geofence 2</string>
     <string name="menu_item_clear_geofence_history">Clear stored geofences</string>
+    <string name="menu_item_remove_all_geofences">Remove stored geofences</string>
     <string name="no_resolution">Google Play services: unable to resolve connection error.</string>
     <string name="play_services_available">Location Services is available</string>
     <string name="radius">Radius</string>

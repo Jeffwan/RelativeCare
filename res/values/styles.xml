@@ -17,4 +17,33 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    
+    <style name = "text_content_style">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#000</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:paddingLeft">8dip</item>
+        <item name="android:paddingTop">5dip</item>
+    </style>
+
+    <style name = "button_next_style" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:text">Next</item>
+        <item name="android:onClick">next</item>
+    </style>
+
+    <style name = "button_pre_style">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:text">Previous</item>
+        <item name="android:onClick">pre</item>
+    </style>
+    
+    
 </resources>

@@ -12,9 +12,17 @@
     <string name="longitude">Longitude</string>
     <string name="menu_item_clear_geofence_history">Clear stored geofences</string>
     <string name="menu_item_remove_all_geofences">Remove stored geofences</string>
-    
+ 
     <string name="radius">Radius</string>
 
+    <!-- Map Type -->
+	<string name="map_type">Map Type</string>
+    <string name="roadmap">Roadmap</string>
+    <string name="satellite">Satellite</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="terrain">Terrain</string>
+    
+    
     <!-- Messages -->
     <string name="add_geofences_result_success">
         Add Geofences: Success GeofenceRequestIds=%1$s

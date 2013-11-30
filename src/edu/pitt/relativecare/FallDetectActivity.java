@@ -9,21 +9,26 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 /**
  * Created by jeffwan on 11/19/13.
  */
-public class FallDetectActivity extends Activity implements SensorEventListener {
+public class FallDetectActivity extends Activity implements SensorEventListener, OnCheckedChangeListener {
 
     private static final String TAG = "FallDetect";
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private float x, y, z;
     private TextView tvX, tvY, tvZ;
+    private Switch falldownSwitch; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +37,9 @@ public class FallDetectActivity extends Activity implements SensorEventListener 
         tvX = (TextView) findViewById(R.id.x_axis);
         tvY = (TextView) findViewById(R.id.y_axis);
         tvZ = (TextView) findViewById(R.id.z_axis);
-
-
+        falldownSwitch = (Switch) findViewById(R.id.falldown_switch);
+        falldownSwitch.setOnCheckedChangeListener(this);
+        
         Log.i(TAG, "enter me fall detect");
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -53,6 +59,19 @@ public class FallDetectActivity extends Activity implements SensorEventListener 
 
     }
 
+    @Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    	// TODO: SharePerefence 的值要改掉，这块跟设置向导是一样的
+    	if (isChecked) {
+    		Toast.makeText(this, "is on", 1).show();
+    	} else {
+    		Toast.makeText(this, "is off", 1).show();
+    	}
+		
+	}
+
+    
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -99,6 +118,8 @@ public class FallDetectActivity extends Activity implements SensorEventListener 
 
 
     }
+
+	
 
 }
 

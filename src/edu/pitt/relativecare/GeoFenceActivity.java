@@ -336,24 +336,36 @@ public class GeoFenceActivity extends Activity implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		// 这里只是SP 里面清楚，下次Draw Map 时候就没有了，但是Listener应该在
-		case R.id.menu_item_clear_geofence_history:
-			for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
-				mPrefs.clearGeofence(Integer.toString(i+1));
+			case R.id.normal:
+				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				break;
+			case R.id.satellite:
+				mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+				break;
+			case R.id.hybrid:
+				mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+				break;
+			case R.id.terrain:
+				mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+				break;
+			// 这里只是SP 里面清楚，下次Draw Map 时候就没有了，但是Listener应该在
+			case R.id.menu_item_clear_geofence_history:
+				for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
+					mPrefs.clearGeofence(Integer.toString(i+1));
+				}
+				mMap.clear();
+				return true;
+			// 清除Register, 然后清地图
+			case R.id.menu_item_remove_all_geofence:
+				onUnregisterByPendingIntentClicked();
+				for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
+					mPrefs.clearGeofence(Integer.toString(i+1));
+				}
+				mMap.clear();
+				break;
+			default:
+				break;
 			}
-			mMap.clear();
-			return true;
-		// 清除Register, 然后清地图
-		case R.id.menu_item_remove_all_geofence:
-			onUnregisterByPendingIntentClicked();
-			for (int i=0;i< Integer.parseInt(mPrefs.getLastGeofenceId());i++) {
-				mPrefs.clearGeofence(Integer.toString(i+1));
-			}
-			mMap.clear();
-			break;
-		default:
-			break;
-		}
 		return super.onOptionsItemSelected(item);
 	}
 

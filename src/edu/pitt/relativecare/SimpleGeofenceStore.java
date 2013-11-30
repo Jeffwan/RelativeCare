@@ -134,6 +134,26 @@ public class SimpleGeofenceStore {
     	
 	}
     
+	public void setSetupData(String number, String email, boolean setup) {
+	    	
+	    	Editor editor = mPrefs.edit();
+	    	editor.putString("contactnumber", number);
+	    	editor.putString("contactemail", email);
+	    	editor.putBoolean("setup", true);
+	        editor.commit(); 
+	}
+    
+    public boolean isSetup() {
+        return mPrefs.getBoolean("setup",false);
+    }
+    
+    public String getContactEmail() {
+        return mPrefs.getString("contactemail","shanjiaxin@yahoo.com");
+    }
+    
+    public String getContactNumber() {
+        return mPrefs.getString("contactnumber","4122307670");
+    }
     
     public void setLastGeofenceId(String lastId) {
     	

@@ -2,6 +2,7 @@ package edu.pitt.relativecare;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,22 +10,53 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * Created by jeffwan on 11/19/13.
  */
+@SuppressLint("CutPasteId")
 public class AmbientActivity extends Activity implements SensorEventListener {
 
     private static final String TAG = "AmbientActivity";
     private SensorManager mSensorManager;
+    private TextView tv_temperature_text;
+    private TextView tv_humidity_text;
+    private TextView tv_pressure_text;
+ 
+    private TextView tv_temperature_value;
+    private TextView tv_humidity_value;
+    private TextView tv_pressure_value;
     
-    @Override
+    private TextView tv_temperature_hint;
+    private TextView tv_humidity_hint;
+    private TextView tv_pressure_hint;
+   
+    
+    
+
+    
+    
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ambient);
-        Log.i(TAG,"enter me Ambient");
+        tv_temperature_text = (TextView) findViewById(R.id.temperature_text);
+        tv_humidity_text = (TextView) findViewById(R.id.humidity_text);
+        tv_pressure_text = (TextView) findViewById(R.id.pressure_text);
+        
+        tv_temperature_value = (TextView) findViewById(R.id.temperature_value);
+        tv_humidity_value = (TextView) findViewById(R.id.humidity_value);
+        tv_pressure_value = (TextView) findViewById(R.id.pressure_value);
+        
+        tv_temperature_hint = (TextView) findViewById(R.id.temperature_hint);
+        tv_humidity_hint = (TextView) findViewById(R.id.humidity_hint);
+        tv_pressure_hint = (TextView) findViewById(R.id.pressure_hint);
+        
+        
         
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        
         
         /**
          * Used for check hardware
@@ -80,15 +112,17 @@ public class AmbientActivity extends Activity implements SensorEventListener {
 //			}
 //		}
         
+//        mSensorManager.registerListener(this, 
+//        		mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+//        
         mSensorManager.registerListener(this, 
-        		mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE),SensorManager.SENSOR_DELAY_NORMAL);
+        		mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE), SensorManager.SENSOR_DELAY_NORMAL);
 
 		mSensorManager.registerListener(this,
-				mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),SensorManager.SENSOR_DELAY_NORMAL);
+				mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE), SensorManager.SENSOR_DELAY_NORMAL);
 
 		mSensorManager.registerListener(this,
-				mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY),SensorManager.SENSOR_DELAY_NORMAL);
-        
+				mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
 	@Override
@@ -97,29 +131,62 @@ public class AmbientActivity extends Activity implements SensorEventListener {
 		
 	}
 
-
-
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		Sensor sensor = event.sensor;
 		switch (sensor.getType()) {
 		case Sensor.TYPE_AMBIENT_TEMPERATURE:
-			
-			
+			float temperature  = event.values[0];
+			Log.i(TAG, String.valueOf(temperature));
+			tv_temperature_value.setText(String.valueOf(temperature));
 			
 			break;
+			
 		case Sensor.TYPE_PRESSURE:
-			
+			float pressure = event.values[0];
+			Log.i(TAG, String.valueOf(pressure));
+			// Do something with the 
+			tv_pressure_value.setText(String.valueOf(pressure));
 			break;
+			
 		case Sensor.TYPE_RELATIVE_HUMIDITY:
-			
+			float humidity = event.values[0];
+			Log.i(TAG, String.valueOf(humidity));
+			tv_humidity_value.setText(String.valueOf(humidity));
 			break;
-
+			
+//		case Sensor.TYPE_ACCELEROMETER:
+//			float accelerometer = event.values[0];
+//			Log.i(TAG, String.valueOf(accelerometer));
+//			break;
+			
 		default:
 			break;
 		}
 		
 	}
+	
+	 @Override
+		protected void onPause() {
+			// TODO Auto-generated method stub
+			super.onPause();
+			mSensorManager.unregisterListener(this);
+		}
+
+		@Override
+		protected void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
+			mSensorManager.registerListener(this, 
+	        		mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE),SensorManager.SENSOR_DELAY_NORMAL);
+
+			mSensorManager.registerListener(this,
+					mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE),SensorManager.SENSOR_DELAY_NORMAL);
+
+			mSensorManager.registerListener(this,
+					mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY),SensorManager.SENSOR_DELAY_NORMAL);
+		}
+
     
     
 }
