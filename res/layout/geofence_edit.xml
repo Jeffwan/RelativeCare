@@ -9,19 +9,22 @@
     	android:layout_width="match_parent"        
     	android:layout_height="wrap_content"
     	android:hint="please input fence name"
-    	android:textSize="20dip"       
+    	android:textSize="20dip"
+        android:layout_marginTop="5dip"
         />
     
     <TextView
         android:id="@+id/fenceaddress_edit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20dip" 
+        android:textSize="20dip"
+        android:layout_marginTop="5dip"
     	/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="5dip">
         <TextView
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
@@ -38,23 +41,28 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="5dip"
+        >
         <Button
             android:id="@+id/btn_cancel_edit"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
+            android:layout_weight="1"
 	        android:text="Cancel"
 	    	/>
 		<Button
             android:id="@+id/btn_delete_edit"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
+            android:layout_weight="1"
 	        android:text="Delete"
 	    	/>        
         <Button
             android:id="@+id/btn_ok_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="OK"        
             />
     </LinearLayout>

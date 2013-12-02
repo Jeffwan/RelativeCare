@@ -6,7 +6,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.gsm.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -16,6 +20,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -26,17 +32,36 @@ public class FallDetectActivity extends Activity implements SensorEventListener,
     private static final String TAG = "FallDetect";
     private SensorManager mSensorManager;
     private Sensor mSensor;
+    private SimpleGeofenceStore mPrefs;
+
     private float x, y, z;
-    private TextView tvX, tvY, tvZ;
-    private Switch falldownSwitch; 
+    private double v;
+    private TextView tvX, tvY, tvZ, tvV;
+    private Switch falldownSwitch;
+
+    boolean min,max,falled,notification;
+    long mintime=0,maxtime=0;
+    int i;
+    MediaPlayer player = new MediaPlayer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPrefs = new SimpleGeofenceStore(this);
+
+        min=false;
+        max=false;
+        notification=false;
+        long mintime=System.currentTimeMillis();
+        i=0;
+
+
         setContentView(R.layout.activity_falldetect);
         tvX = (TextView) findViewById(R.id.x_axis);
         tvY = (TextView) findViewById(R.id.y_axis);
         tvZ = (TextView) findViewById(R.id.z_axis);
+        tvV = (TextView) findViewById(R.id.v_axis);
         falldownSwitch = (Switch) findViewById(R.id.falldown_switch);
         falldownSwitch.setOnCheckedChangeListener(this);
         
@@ -100,26 +125,100 @@ public class FallDetectActivity extends Activity implements SensorEventListener,
                 x = event.values[0];
                 y = event.values[0];
                 z = event.values[0];
-
-                Log.i(TAG,"x: "+ x);
-                Log.i(TAG,"y: "+ y);
-                Log.i(TAG,"z: "+ z);
+                v = Math.sqrt(Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2));
 
                 //
                 tvX.setText(Float.toString(x));
                 tvY.setText(Float.toString(y));
                 tvZ.setText(Float.toString(z));
+                tvV.setText(Double.toString(v));
+
+                falled = fallDetection(v);
+
+
+                if(falled&&!notification){
+                    performAlarm();
+                }
         }
-
-
-
-
-
-
 
     }
 
-	
+    boolean fallDetection(double v)
+    {
+
+        boolean falled0=false;
+        if(v<=6.0){
+            min=true;
+            mintime= System.currentTimeMillis();
+        }
+
+        if(min==true)
+        {
+            i++;
+            if(v>=12){
+                max=true;
+                maxtime=System.currentTimeMillis();
+
+            }
+
+        }
+        //  if(min==true &&max==true)
+        if(min==true &&max==true&&((maxtime-mintime)>500))
+        {
+            falled0=true;
+            i=0;
+            min=false;
+            max=false;
+
+        }
+        return falled0;
+    }
+
+    void performAlarm(){
+        //   Toast.makeText(this,"Fall Detected!",Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"Fall Detected! Time:"+(maxtime-mintime),Toast.LENGTH_LONG).show();
+
+        playSound();
+        sendSMS();
+
+        // callEmergency();
+        notification = true;
+
+    }
+
+    void playSound(){
+        MediaPlayer mplayer = MediaPlayer.create(this, R.raw.ring);
+        mplayer.setLooping(false);
+        mplayer.setVolume(1.0f, 1.0f);
+        mplayer.start();
+    }
+
+    public void stopAlarm(){
+        if(player.isPlaying()==true)
+        {
+            player.stop();
+        }
+    }
+
+    public void sendSMS(){
+        try{
+            SimpleDateFormat sDateFormat =  new SimpleDateFormat("yyyy-MM-dd   hh:mm:ss");
+            String time  = sDateFormat.format(new java.util.Date());
+
+            String smsNumber = mPrefs.getContactNumber();
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(smsNumber,null,smsNumber + "your relative may fall down ! -- "+time,null,null);
+
+        }catch (Exception e){
+            Toast.makeText(this,"SMS failed, please try again later",Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    public static void callEmergency(){
+
+        //  startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:8122721964")), 1);
+    }
 
 }
 

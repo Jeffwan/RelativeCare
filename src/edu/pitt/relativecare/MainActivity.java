@@ -6,10 +6,11 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class MainActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
-    private Button geoFence, fallDetect, ambient;
+    private ImageButton geoFence, fallDetect, ambient, settings;
 //    private Button fallDetect;
 //    private Button ambient;
 
@@ -18,13 +19,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-        geoFence = (Button) findViewById(R.id.geofence);
-        fallDetect = (Button) findViewById(R.id.falldetect);
-        ambient = (Button) findViewById(R.id.ambient);
+        geoFence = (ImageButton) findViewById(R.id.geofence);
+        fallDetect = (ImageButton) findViewById(R.id.falldetect);	
+        ambient = (ImageButton) findViewById(R.id.ambient);
+        settings = (ImageButton) findViewById(R.id.settings);
 
         geoFence.setOnClickListener(this);
         fallDetect.setOnClickListener(this);
         ambient.setOnClickListener(this);
+        settings.setOnClickListener(this);
 
 	}
 
@@ -49,7 +52,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Intent ambientIntent = new Intent(this, AmbientActivity.class);
                 startActivity(ambientIntent);
                 break;
-
+                
+            case R.id.settings:
+            	Log.i(TAG, "settings");
+            	Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            	startActivity(settingsIntent);
+            	break;
         }
     }
 }

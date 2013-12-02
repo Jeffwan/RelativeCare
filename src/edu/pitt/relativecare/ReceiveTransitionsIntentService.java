@@ -32,16 +32,25 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
     private static final String TAG = "ReceiveTransitionsIntentService";
     private SimpleGeofenceStore mPrefs;
+    private String devicePhoneNumber;
 
 	/**
      * Sets an identifier for this class' background thread
      */
     public ReceiveTransitionsIntentService() {
         super("ReceiveTransitionsIntentService");
-        mPrefs = new SimpleGeofenceStore(this);
+
     }
 
-    /**
+    @Override
+	public void onCreate() {
+		// TODO Auto-generated method stub
+		super.onCreate();
+      mPrefs = new SimpleGeofenceStore(this);
+      devicePhoneNumber = mPrefs.getDevicePhoneNumber();
+	}
+
+	/**
      * Handles incoming intents
      * @param intent The Intent sent by Location Services. This Intent is provided
      * to Location Services (inside a PendingIntent) when you call addGeofences()
@@ -101,8 +110,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 	
                 	// 任何 Enter Exit 后面的行为，都可以在这里添加
                 	sendNotification(transitionType, simpleGeofence.getName());
-                	sendEmail();
-                	sendMessage();
+
                 }
                 
                 
@@ -139,27 +147,29 @@ public class ReceiveTransitionsIntentService extends IntentService {
     }
 
     // Use Gmails Authentication to send Email
-    private void sendEmail() {
+    private void sendEmail(String emailBody) {
     	// get contact information
     	String email = mPrefs.getContactEmail();
+    	Log.i(TAG,"Email: " + email);
     	
     	try {   
-            GMailSender sender = new GMailSender("", ""); // 账号密码
-            sender.sendMail("This is Subject",   
-                    "This is Body",   
-                    "seedjeffwan@gmail.com",   
+            GMailSender sender = new GMailSender("relativecares@gmail.com", "relative123"); // 账号密码
+            sender.sendMail("Email from Relative Care",   
+            		devicePhoneNumber + " " + emailBody,   
+                    "relativecares@gmail.com",
                     email);   
+            
+            Log.i(TAG, "send email successfully");
         } catch (Exception e) {   
             Log.e("SendMail", e.getMessage(), e);   
         } 	
 	}
     
-    private void sendMessage() {
+    private void sendMessage(String smsBody) {
     	String number = mPrefs.getContactNumber();
-    	String content = "alert!";
+    	Log.i(TAG, "Number: "+number);
     	// TODO: change API 4.0 version to replace the deprecated ones.
-    	SmsManager smsManager = SmsManager.getDefault();
-    	smsManager.sendTextMessage(number, null, content, null, null);
+    	SmsManager.getDefault().sendTextMessage(number,null,devicePhoneNumber + " "  + smsBody,null,null);
     	Log.i(TAG, "send message successfully");
     	
     }
@@ -174,7 +184,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
     private void sendNotification(String transitionType, String name) {
 
         // Create an explicit content Intent that starts the main Activity
-        Intent notificationIntent = new Intent(getApplicationContext(),MainActivity.class);
+        Intent notificationIntent = new Intent(getApplicationContext(),GeoFenceActivity.class);
 
         // Construct a task stack
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -196,6 +206,12 @@ public class ReceiveTransitionsIntentService extends IntentService {
         // Get an instance of the Notification manager，Issue the notification
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(0, builder.build());
+        
+        // Send email and sms
+    	sendEmail(getString(R.string.geofence_transition_notification_title,
+   				transitionType, name));
+    	sendMessage(getString(R.string.geofence_transition_notification_title,
+   				transitionType, name));
     }
 
     /**

@@ -2,13 +2,16 @@ package edu.pitt.relativecare;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 
 public class SettingsActivity extends Activity implements OnClickListener{
 	
+	private static final String TAG = "SettingsActivity";
 	private EditText et_setup_number;
 	private EditText et_setup_email;
 	private Button btn_select_contact;
@@ -25,26 +29,43 @@ public class SettingsActivity extends Activity implements OnClickListener{
 	private String recipientName = "";
     // Persistent storage for geofences
     private SimpleGeofenceStore mPrefs;
+    private String contactNumber;
+    private String contactEmail;
+    private Boolean isSetup;
+    
+    private TelephonyManager tm;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		mPrefs = new SimpleGeofenceStore(this);
+		setContentView(R.layout.activity_settings);
 		
-		if (mPrefs.isSetup()) {
-			 Intent intent = new Intent(this,MainActivity.class);
-			 startActivity(intent);
-		} else {
-			et_setup_number = (EditText) findViewById(R.id.et_setup_saftnumber);
-			et_setup_email = (EditText) findViewById(R.id.et_setup_safeemail);
-			btn_select_contact = (Button) findViewById(R.id.btn_select_contact);
-			btn_finish_setup = (Button) findViewById(R.id.btn_finish_setup);
-			
-			btn_select_contact.setOnClickListener(this);
-			btn_finish_setup.setOnClickListener(this);
+
+		
+		et_setup_number = (EditText) findViewById(R.id.et_setup_saftnumber);
+		et_setup_email = (EditText) findViewById(R.id.et_setup_safeemail);
+		btn_select_contact = (Button) findViewById(R.id.btn_select_contact);
+		btn_finish_setup = (Button) findViewById(R.id.btn_finish_setup);
+		
+		btn_select_contact.setOnClickListener(this);
+		btn_finish_setup.setOnClickListener(this);
+		
+		
+		// read contact number 
+		contactNumber = mPrefs.getContactNumber();
+		contactEmail = mPrefs.getContactEmail();
+		isSetup = mPrefs.isSetup();
+		
+		// initial the edittext
+		et_setup_number.setText(contactNumber);
+		et_setup_email.setText(contactEmail);
+		
+		if (!isSetup) {
+			Toast.makeText(this, "Please set contact information first!", 1).show();
 		}
-			
+		
 	}
 
     public void finishSetup() {
@@ -52,10 +73,17 @@ public class SettingsActivity extends Activity implements OnClickListener{
     	String email = et_setup_email.getText().toString().trim();
     	
     	if (TextUtils.isEmpty(number) || TextUtils.isEmpty(email)) {
-			Toast.makeText(getApplicationContext(), "number and email cannot be null", 1).show();
+			Toast.makeText(getApplicationContext(), "Number and Email cannot be null", 1).show();
 			return;
 		}
     	
+    	// Store device phone 
+    	tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        String telNumber = tm.getLine1Number();//手机号码
+        Log.i(TAG, telNumber);
+        
+        mPrefs.setDevicePhoneNumber(telNumber);
+    	mPrefs.setSetupData(number, email, true);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();

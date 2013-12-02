@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -27,17 +28,8 @@ public class AmbientActivity extends Activity implements SensorEventListener {
     private TextView tv_temperature_value;
     private TextView tv_humidity_value;
     private TextView tv_pressure_value;
-    
-    private TextView tv_temperature_hint;
-    private TextView tv_humidity_hint;
-    private TextView tv_pressure_hint;
-   
-    
-    
-
-    
-    
-	@Override
+     
+ 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ambient);
@@ -47,13 +39,7 @@ public class AmbientActivity extends Activity implements SensorEventListener {
         
         tv_temperature_value = (TextView) findViewById(R.id.temperature_value);
         tv_humidity_value = (TextView) findViewById(R.id.humidity_value);
-        tv_pressure_value = (TextView) findViewById(R.id.pressure_value);
-        
-        tv_temperature_hint = (TextView) findViewById(R.id.temperature_hint);
-        tv_humidity_hint = (TextView) findViewById(R.id.humidity_hint);
-        tv_pressure_hint = (TextView) findViewById(R.id.pressure_hint);
-        
-        
+        tv_pressure_value = (TextView) findViewById(R.id.pressure_value);       
         
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         
@@ -111,11 +97,8 @@ public class AmbientActivity extends Activity implements SensorEventListener {
 //				break;
 //			}
 //		}
-        
-//        mSensorManager.registerListener(this, 
-//        		mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-//        
-        mSensorManager.registerListener(this, 
+
+        mSensorManager.registerListener(this,
         		mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE), SensorManager.SENSOR_DELAY_NORMAL);
 
 		mSensorManager.registerListener(this,
@@ -136,29 +119,33 @@ public class AmbientActivity extends Activity implements SensorEventListener {
 		Sensor sensor = event.sensor;
 		switch (sensor.getType()) {
 		case Sensor.TYPE_AMBIENT_TEMPERATURE:
-			float temperature  = event.values[0];
+			int temperature  = (int)event.values[0];
 			Log.i(TAG, String.valueOf(temperature));
-			tv_temperature_value.setText(String.valueOf(temperature));
-			
+            if (TextUtils.isEmpty(tv_temperature_value.getText().toString().trim())){
+                tv_temperature_value.setText(String.valueOf(temperature +" degree"));
+            }
 			break;
 			
+			
 		case Sensor.TYPE_PRESSURE:
-			float pressure = event.values[0];
+			int pressure = (int)event.values[0];
 			Log.i(TAG, String.valueOf(pressure));
-			// Do something with the 
-			tv_pressure_value.setText(String.valueOf(pressure));
+			// Do something with the
+            if (TextUtils.isEmpty(tv_pressure_value.getText().toString().trim())) {
+                tv_pressure_value.setText(String.valueOf(pressure+" hPa"));
+            }
 			break;
 			
 		case Sensor.TYPE_RELATIVE_HUMIDITY:
-			float humidity = event.values[0];
+			int humidity = (int)event.values[0];
 			Log.i(TAG, String.valueOf(humidity));
-			tv_humidity_value.setText(String.valueOf(humidity));
+
+            if (TextUtils.isEmpty(tv_humidity_value.getText().toString().trim())) {
+                tv_humidity_value.setText(String.valueOf(humidity+" %"));
+            }
+
 			break;
-			
-//		case Sensor.TYPE_ACCELEROMETER:
-//			float accelerometer = event.values[0];
-//			Log.i(TAG, String.valueOf(accelerometer));
-//			break;
+
 			
 		default:
 			break;
@@ -186,7 +173,5 @@ public class AmbientActivity extends Activity implements SensorEventListener {
 			mSensorManager.registerListener(this,
 					mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY),SensorManager.SENSOR_DELAY_NORMAL);
 		}
-
-    
     
 }

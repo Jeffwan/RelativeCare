@@ -27,6 +27,7 @@ import edu.pitt.relativecare.utils.GeofenceUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -44,8 +45,7 @@ public class SimpleGeofenceStore {
     // Create the SharedPreferences storage with private access only
     // 构造方法，传进来的时候就的给context，这样sp 就能初始化好了
     public SimpleGeofenceStore(Context context) {
-        mPrefs =
-                context.getSharedPreferences(
+        mPrefs = context.getSharedPreferences(
                         SHARED_PREFERENCE_NAME,
                         Context.MODE_PRIVATE);
     }
@@ -148,21 +148,41 @@ public class SimpleGeofenceStore {
     }
     
     public String getContactEmail() {
-        return mPrefs.getString("contactemail","shanjiaxin@yahoo.com");
+        return mPrefs.getString("contactemail","");
     }
     
     public String getContactNumber() {
-        return mPrefs.getString("contactnumber","4122307670");
+        return mPrefs.getString("contactnumber","");
     }
     
+    public String getLastLocation(){
+    	return mPrefs.getString("lastLocation","");
+    }
+   
     public void setLastGeofenceId(String lastId) {
     	
     	Editor editor = mPrefs.edit();
     	editor.putString(GeofenceUtils.KEY_GEOFENCE_LAST_ID, lastId);
         editor.commit();
-        
+	}
+    public String getDevicePhoneNumber() {
+    	return mPrefs.getString("mydevicennumber","");
 	}
     
+    public void setDevicePhoneNumber(String number) {
+    	Editor editor = mPrefs.edit();
+    	editor.putString("mydevicennumber", number);
+    	editor.commit();
+	}
+    
+    public void setLastLocation(Double latitude, Double longitude) {
+//        String locations = "longtitude: "+ longitude + " latitude: "+ latitude;
+        String link = "http://maps.google.com/?q="+ latitude +","+ longitude;
+    	Editor editor = mPrefs.edit();
+        editor.putString("lastLocation", link);
+        editor.commit();
+	}
+
     
     /**
      * Given a Geofence object's ID and the name of a field
@@ -181,6 +201,5 @@ public class SimpleGeofenceStore {
                 "_" +
                 fieldName;
     }
-
 
 }

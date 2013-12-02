@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -132,6 +133,10 @@ public class GeoFenceActivity extends Activity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPrefs = new SimpleGeofenceStore(this);
+        
+
+        
         // Handle LatLng format
         String latLngPattern = getString(R.string.lat_lng_pattern);
         mLatLngFormat = new DecimalFormat(latLngPattern);
@@ -158,7 +163,7 @@ public class GeoFenceActivity extends Activity implements
         // All Location Services sample apps use this category
         mIntentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
         
-        mPrefs = new SimpleGeofenceStore(this);
+
         
         // Instantiate the current List of geofences --  这个还要往地图里塞的，记住了你可
         mCurrentGeofences = new ArrayList<Geofence>();
